@@ -4,9 +4,11 @@ Clone from GitHub and build `bao` with minimal steps. See the root [`README.md`]
 
 ## 1. Clone and build
 
+Use the URL of your fork or this repo (see [README “Clone the repository”](../README.md)).
+
 ```bash
-git clone https://github.com/OWNER/bao.git
-cd bao
+git clone https://github.com/StudioNimo/Bao.git
+cd Bao
 # Dependencies: SQLite3 dev library, C compiler (see README “Prerequisites”)
 make
 ```
@@ -28,10 +30,10 @@ cd examples/sample
 In an empty directory:
 
 ```bash
-/path/to/bao/bin/bao init
+/path/to/Bao/bin/bao init
 # Edit bao.yaml and prompts/
-/path/to/bao/bin/bao add -A
-/path/to/bao/bin/bao commit -m "..."
+/path/to/Bao/bin/bao add -A
+/path/to/Bao/bin/bao commit -m "..."
 ```
 
 You can also copy [`examples/sample/`](../examples/sample/) and edit from there.
