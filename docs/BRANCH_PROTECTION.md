@@ -3,6 +3,17 @@
 How to require **green checks** on pull requests before merging into `main`.  
 (This repo’s workflow is `ci` in `.github/workflows/ci.yml`.)
 
+## Current ruleset (repository)
+
+A **branch ruleset** named **Protect main** is configured on this repo (targets the default branch via `~DEFAULT_BRANCH`). It enforces:
+
+- **Pull request required** before merging (0 approving reviews required; merge / squash / rebase allowed)
+- **Required status check:** `ci (required)` (with **strict** policy: branch must be up to date)
+- **No force-push** (`non_fast_forward`)
+
+Manage it under **Settings → Rules → Rulesets**, or via the API:  
+`GET /repos/StudioNimo/Bao/rulesets` and `GET /repos/StudioNimo/Bao/rules/branches/main`.
+
 ## Prerequisites
 
 - **Settings → Actions → General:** Actions enabled
