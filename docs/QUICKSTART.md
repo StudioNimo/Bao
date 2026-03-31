@@ -13,7 +13,7 @@ make
 
 ## 2. First commit with the sample
 
-The sample lives under `examples/sample/` so it stays separate from the tool sources.
+The sample lives under [`examples/sample/`](../examples/sample/) so it stays separate from the tool sources.
 
 ```bash
 cd examples/sample
@@ -34,4 +34,4 @@ In an empty directory:
 /path/to/bao/bin/bao commit -m "..."
 ```
 
-You can also copy `examples/sample/` and edit from there.
+You can also copy [`examples/sample/`](../examples/sample/) and edit from there.

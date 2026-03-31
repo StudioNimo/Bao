@@ -1,7 +1,7 @@
 # Protect `main` (require CI before merging PRs)
 
 How to require **green checks** on pull requests before merging into `main`.  
-(This repo’s workflow is `ci` in `.github/workflows/ci.yml`.)
+(This repo’s workflow is `ci` in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).)
 
 ## Current ruleset (repository)
 
@@ -39,5 +39,5 @@ On first use, open a PR so CI runs once; then `ci (required)` appears in the req
 
 ## References
 
-- Workflow: `.github/workflows/ci.yml`
+- Workflow: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)
 - `pull_request` is limited to `main` (other branches do not run this CI)

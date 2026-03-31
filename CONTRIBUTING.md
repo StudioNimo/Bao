@@ -4,7 +4,7 @@ Thanks for your interest. Bao is still a prototype, but bug reports, suggestions
 
 Background and naming are described in [`docs/concept_and_naming.md`](docs/concept_and_naming.md).
 
-**Layout:** The tool lives under `src/` and `Makefile`. The minimal user sample is **`examples/sample/`**; tests such as `cli_smoke.sh` copy from there. There is no `bao.yaml` at the repository root.
+**Layout:** The tool lives under [`src/`](src/) and [`Makefile`](Makefile). The minimal user sample is **[`examples/sample/`](examples/sample/)**; tests such as [`tests/cli_smoke.sh`](tests/cli_smoke.sh) copy from there. There is no `bao.yaml` at the repository root.
 
 ## Development setup
 
@@ -29,7 +29,7 @@ make test
 
 - **Bugs:** Minimal repro steps, expected vs actual, OS/environment.
 - **Features:** Goal, user value, intended UX, compatibility impact.
-- **PRs:** Include test updates (or why not). PRs to `main` run GitHub Actions (`.github/workflows/ci.yml`). To require CI before merge, see [`docs/BRANCH_PROTECTION.md`](docs/BRANCH_PROTECTION.md).
+- **PRs:** Include test updates (or why not). PRs to `main` run GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)). To require CI before merge, see [`docs/BRANCH_PROTECTION.md`](docs/BRANCH_PROTECTION.md).
 
 ## Code style (guidelines)
 
@@ -38,4 +38,4 @@ make test
 
 ## License
 
-Contributions are accepted under the terms of `LICENSE` (MIT).
+Contributions are accepted under the terms of [`LICENSE`](LICENSE) (MIT).

@@ -19,4 +19,4 @@
 
 ## Related code
 
-- `src/cmd_remote.c` — current stubs for `push` / `pull`.
+- [`src/cmd_remote.c`](../src/cmd_remote.c) — current stubs for `push` / `pull`.

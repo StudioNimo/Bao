@@ -109,25 +109,25 @@ typedef struct {
 
 ## 5. Modules and internal APIs
 
-### 5.1. `src/hash.c`
+### 5.1. [`src/hash.c`](../src/hash.c)
 
 - **Optional:** `openssl/evp.h` when `BAO_USE_OPENSSL=1`; default is built-in SHA-256.
 - **Role:** SHA-256 over strings and files.
 - **Example:** `char* generate_sha256(const char* data, size_t len);`
 
-### 5.2. `src/config.c`
+### 5.2. [`src/config.c`](../src/config.c)
 
 - **Design note:** full `libyaml` parsing is a future option.
 - **Role:** load `bao.yaml` into `BaoConfig`.
 - **Example:** `BaoConfig* load_config(const char* path);`
 
-### 5.3. `src/template.c`
+### 5.3. [`src/template.c`](../src/template.c)
 
 - **Depends:** `cJSON.h`
 - **Role:** replace `{{key}}` in prompts with JSON values; dynamic `realloc` for safety.
 - **Example:** `char* render_template(const char* tmpl, cJSON* variables);`
 
-### 5.4. `src/db.c`
+### 5.4. [`src/db.c`](../src/db.c)
 
 - **Depends:** `sqlite3.h`
 - **Role:** connections, transactions, queries.

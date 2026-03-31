@@ -2,8 +2,8 @@
 
 ## Scope
 
-- `bao` itself (`src/`)
-- Build and packaging (`Makefile`)
+- `bao` itself ([`src/`](src/))
+- Build and packaging ([`Makefile`](Makefile))
 
 ## Reporting vulnerabilities
 

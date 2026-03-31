@@ -3,28 +3,28 @@
 ## 1. Goals
 
 - Reproduce **user scenarios S01–S20** in integration tests so main flows stay healthy (**S21** is covered by a separate script).
-- Run **every command, subcommand, and major option** through `tests/cli_smoke.sh`.
-- **Strict output checks** (`remote -v` as `name<TAB>url`, `status --porcelain` line format, `stash` list/push/pop/apply/drop/clear) live in `tests/assert_strict.sh`.
+- Run **every command, subcommand, and major option** through [`cli_smoke.sh`](cli_smoke.sh).
+- **Strict output checks** (`remote -v` as `name<TAB>url`, `status --porcelain` line format, `stash` list/push/pop/apply/drop/clear) live in [`assert_strict.sh`](assert_strict.sh).
 - Run the 20 scenarios in both **internal** (`bin/bao` directly) and **external** (`bao` on `PATH`) modes.
 
 ## 2. Test assets
 
 | Asset | Role |
 |-------|------|
-| `tests/TEST_PLAN.md` | This document (scenario ↔ test mapping) |
-| `examples/sample/` | Source for `bao.yaml` / `prompts/` / `test_cases.jsonl` used by smoke and integration tests |
-| `tests/scenarios_20_common.sh` | **S01–S20** core (binary chosen via `BAO`) |
-| `tests/scenarios_20_internal.sh` | Internal wrapper (S01–S20) |
-| `tests/scenarios_20_external.sh` | External wrapper (S01–S20) |
-| `tests/scenarios_21_extra_common.sh` | **S21** (multi-provider comparison, fixed result filenames) |
-| `tests/scenarios_21_internal.sh` | Internal wrapper (S21 only) |
-| `tests/scenarios_21_external.sh` | External wrapper (S21 only) |
-| `tests/cli_smoke.sh` | Smoke all commands / subcommands / major options |
-| `tests/stub_options_fail.sh` | Stub commands **with options** (mostly non-zero exit) |
-| `tests/assert_strict.sh` | Strict checks for `remote -v`, `status --porcelain`, `stash` transitions |
-| `tests/integration_internal.sh` | init → commit → checkout → restore |
-| `tests/integration_external.sh` | Minimal flow via `PATH` |
-| `tests/integration_multi_provider.sh` | Multiple providers in one repo |
+| [`TEST_PLAN.md`](TEST_PLAN.md) | This document (scenario ↔ test mapping) |
+| [`../examples/sample/`](../examples/sample/) | Source for `bao.yaml` / `prompts/` / `test_cases.jsonl` used by smoke and integration tests |
+| [`scenarios_20_common.sh`](scenarios_20_common.sh) | **S01–S20** core (binary chosen via `BAO`) |
+| [`scenarios_20_internal.sh`](scenarios_20_internal.sh) | Internal wrapper (S01–S20) |
+| [`scenarios_20_external.sh`](scenarios_20_external.sh) | External wrapper (S01–S20) |
+| [`scenarios_21_extra_common.sh`](scenarios_21_extra_common.sh) | **S21** (multi-provider comparison, fixed result filenames) |
+| [`scenarios_21_internal.sh`](scenarios_21_internal.sh) | Internal wrapper (S21 only) |
+| [`scenarios_21_external.sh`](scenarios_21_external.sh) | External wrapper (S21 only) |
+| [`cli_smoke.sh`](cli_smoke.sh) | Smoke all commands / subcommands / major options |
+| [`stub_options_fail.sh`](stub_options_fail.sh) | Stub commands **with options** (mostly non-zero exit) |
+| [`assert_strict.sh`](assert_strict.sh) | Strict checks for `remote -v`, `status --porcelain`, `stash` transitions |
+| [`integration_internal.sh`](integration_internal.sh) | init → commit → checkout → restore |
+| [`integration_external.sh`](integration_external.sh) | Minimal flow via `PATH` |
+| [`integration_multi_provider.sh`](integration_multi_provider.sh) | Multiple providers in one repo |
 
 ## 3. Scenarios S01–S20
 

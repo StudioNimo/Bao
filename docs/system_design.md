@@ -37,7 +37,7 @@ my_project/
     └── index.db          # SQLite for fast queries
 ```
 
-This repository keeps CLI sources separate from a working tree; equivalent `bao.yaml` / `prompts/` / `test_cases.jsonl` live under **`examples/sample/`** for cloning and demos.
+This repository keeps CLI sources separate from a working tree; equivalent `bao.yaml` / `prompts/` / `test_cases.jsonl` live under **[`examples/sample/`](../examples/sample/)** for cloning and demos.
 
 ### 3.2. Database schema (`index.db`)
 
@@ -54,7 +54,7 @@ Native C with small, mature libraries:
 1. **`libcrypto` (OpenSSL):** SHA-256 for commit IDs (optional; built-in hash available).
 2. **`libsqlite3`:** Store and aggregate runs and scores.
 3. **`libcurl`:** LLM HTTP calls and `push`/`pull` transport.
-4. **`libyaml`:** Parse `bao.yaml` (design doc; current code uses a flat parser—see `architecture.md`).
+4. **`libyaml`:** Parse `bao.yaml` (design doc; current code uses a flat parser—see [`architecture.md`](architecture.md)).
 5. **`cJSON` (vendored):** JSON for API payloads and template rendering.
 
 ## 5. Use cases
@@ -98,7 +98,7 @@ src/
 └── template.c      # {{variable}} rendering
 ```
 
-*(The `Makefile` uses `-O2` and links `-lcrypto -lcurl -lsqlite3` as needed; the live tree may differ—see `architecture.md`.)*
+*(The `Makefile` uses `-O2` and links `-lcrypto -lcurl -lsqlite3` as needed; the live tree may differ—see [`architecture.md`](architecture.md).)*
 
 ## 9. Additional roadmap (OSS sustainability)
 
@@ -106,4 +106,4 @@ src/
 2. **Distribution:** Static binaries where possible; Homebrew tap / GitHub Releases.
 3. **CI:** Already partially met (GitHub Actions on multiple OSes).
 4. **Provider abstraction:** `cmd_run` behind a small interface for OpenAI, Anthropic, Gemini, Ollama, etc.
-5. **Contribution guide:** `CONTRIBUTING.md`, coding style (`clang-format`), issue/PR norms.
+5. **Contribution guide:** [`CONTRIBUTING.md`](../CONTRIBUTING.md), coding style (`clang-format`), issue/PR norms.

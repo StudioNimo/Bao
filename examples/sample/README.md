@@ -15,4 +15,6 @@ cd examples/sample
 
 Use `bao add` to stage and `bao commit` to snapshot. `.bao/` is created next to this directory.
 
-See comments in `bao.yaml` for configuration (example `profile` / `prompts_dir` layout for multiple providers).
+See comments in [`bao.yaml`](bao.yaml) for configuration (example `profile` / `prompts_dir` layout for multiple providers).
+
+More context: [repository `README.md`](../../README.md), [`docs/QUICKSTART.md`](../../docs/QUICKSTART.md).
