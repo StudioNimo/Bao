@@ -4,6 +4,7 @@ This project follows semantic versioning (`MAJOR.MINOR.PATCH`).
 
 ## Unreleased
 
+- Docs: `man bao` — new `ENVIRONMENT` section (parity with `.env.example`)
 - Docs: root [`.env.example`](.env.example) for `BAO_EDITOR`, `EDITOR` / `VISUAL`, `BAO_NO_EDITOR`, `OPENAI_API_KEY`
 - Docs: Fedora / RHEL-family build dependencies (`dnf` + `sqlite-devel`, `libcurl-devel`)
 - Docs: [`docs/ISSUE_FOOTHOLD.md`](docs/ISSUE_FOOTHOLD.md) and [`docs/sync_protocol.md`](docs/sync_protocol.md) as scaffolding for GitHub issues #5–#7; clearer stub/error strings in `eval` / `push` / `pull` / `run`
