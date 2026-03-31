@@ -10,7 +10,7 @@ CPPFLAGS ?= -Isrc -Ithird_party/cJSON
 CPPFLAGS += -D_DEFAULT_SOURCE
 
 LDFLAGS ?=
-LDLIBS ?= -lsqlite3
+LDLIBS ?= -lsqlite3 -lcurl
 
 ifeq ($(BAO_USE_OPENSSL),1)
   CPPFLAGS += -DBAO_USE_OPENSSL

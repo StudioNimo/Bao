@@ -1,4 +1,4 @@
-.TH BAO 1 "2026-03-31" "bao 0.1.0" "User Commands"
+.TH BAO 1 "2026-03-31" "bao 0.2.0" "User Commands"
 .SH NAME
 bao \- local-first experiment tracker with a git-like CLI subset
 .SH SYNOPSIS
@@ -74,6 +74,14 @@ Supports \fB--stat\fR, \fB--name-only\fR.
 .TP
 .B diff
 Show differences between commits or between HEAD and index (\fB--cached\fR).
+Use \fB--eval\fR \fIcommit\fR \fIcommit\fR to compare human evaluation scores (same dataset hash).
+.TP
+.B run
+Run the dataset for the current HEAD commit. Options: \fB-d\fR/\fB--dataset\fR \fIfile.jsonl\fR, \fB--dry-run\fR (no API).
+OpenAI: set \fBOPENAI_API_KEY\fR; \fBprovider: openai\fR in \fIbao.yaml\fR.
+.TP
+.B eval
+Interactive scoring (TTY) for unevaluated executions: 1=BAD, 2=NEUTRAL, 3=GOOD.
 .TP
 .B reset
 Move HEAD and/or clear the staging area.
@@ -106,7 +114,7 @@ Absolute paths, path traversal (\fB..\fR), backslashes, control characters,
 and direct operations on \fI.bao/\fR are rejected.
 .SH LIMITATIONS
 This prototype does not implement a full Git working tree, merge/rebase/cherry-pick,
-or network fetch/push/pull.
+or network \fBpush\fR/\fBpull\fR. \fBrun\fR supports OpenAI chat completions only (other providers are rejected unless \fB--dry-run\fR).
 .SH FILES
 .TP
 .I bao.yaml

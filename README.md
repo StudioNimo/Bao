@@ -34,6 +34,7 @@ There is **no project `bao.yaml` at the repository root** (the tool stays separa
 - **Git** (to clone)
 - **C compiler** (`cc` — Clang on macOS, GCC on Linux, etc.)
 - **SQLite3 development library** (`libsqlite3` and `sqlite3.h`)
+- **libcurl** (development headers) for `bao run` against the OpenAI HTTP API
 - There are **no prebuilt binaries**; **build from source with `make`**. JSON parsing uses **cJSON (vendored)**; SHA-256 defaults to a **built-in implementation**.
 
 ### 1. Clone the repository
@@ -54,7 +55,7 @@ cd Bao
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y build-essential pkg-config libsqlite3-dev
+sudo apt-get install -y build-essential pkg-config libsqlite3-dev libcurl4-openssl-dev
 ```
 
 ### 3. Build
@@ -133,7 +134,12 @@ If you are new to Bao, **`examples/sample/`** is easier than the snippet above.
 
 You must **`bao add`** to stage the index before **`bao commit`**. **`bao add -A`** stages `bao.yaml`, configured prompt files, the dataset, and everything under `prompts/`.
 
-`bao.yaml` needs `model` and `prompt_file` (or `prompts_dir`). `run` / `eval` / `push` / `pull` are planned extensions.
+`bao.yaml` needs `model` and `prompt_file` (or `prompts_dir`).
+
+- **`bao run`**: runs the JSONL dataset through the current HEAD config; **`--dry-run`** prints rendered prompts only. **`provider: openai`** uses **`OPENAI_API_KEY`** and `https://api.openai.com/v1/chat/completions`.
+- **`bao eval`**: TTY-only; scores unevaluated rows with **1=BAD / 2=NEUTRAL / 3=GOOD** after a `run`.
+- **`bao diff --eval A B`**: compares saved scores between two commits (same `dataset_hash` required).
+- **`push` / `pull`**: not implemented yet.
 
 ## Commands (excerpt)
 
@@ -144,6 +150,8 @@ You must **`bao add`** to stage the index before **`bao commit`**. **`bao add -A
 - **`checkout`**: `-b`, `-B`, `--detach`
 - **`switch`**: `-c`, `-C`, `--detach`
 - **`rev-parse`**: `HEAD~n` follows **parent links** (not DB timeline order)
+- **`run`**: `-d/--dataset`, `--dry-run`
+- **`diff`**: `--eval` with two commit hashes for evaluation deltas
 
 ## Documentation
 

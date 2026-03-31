@@ -229,3 +229,113 @@ int bao_db_insert_execution(bao_db_t *db,
   sqlite3_finalize(stmt);
   return (step == SQLITE_DONE) ? 0 : -1;
 }
+
+int bao_db_update_commit_dataset_hash(bao_db_t *db, const char *commit_full_hash, const char *dataset_hash_hex) {
+  if (!db || !db->db || !commit_full_hash || !dataset_hash_hex) return -1;
+  const char *sql = "UPDATE commits SET dataset_hash=? WHERE hash=?;";
+  sqlite3_stmt *stmt = NULL;
+  if (sqlite3_prepare_v2(db->db, sql, -1, &stmt, NULL) != SQLITE_OK) return -1;
+  sqlite3_bind_text(stmt, 1, dataset_hash_hex, -1, SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 2, commit_full_hash, -1, SQLITE_TRANSIENT);
+  int step = sqlite3_step(stmt);
+  sqlite3_finalize(stmt);
+  return (step == SQLITE_DONE) ? 0 : -1;
+}
+
+void bao_uneval_exec_clear(bao_uneval_exec_t *e) {
+  if (!e) return;
+  free(e->input_text);
+  free(e->output_text);
+  e->input_text = e->output_text = NULL;
+  e->execution_id = 0;
+}
+
+int bao_db_next_unevaluated_for_commit(bao_db_t *db, const char *commit_hash, bao_uneval_exec_t *out) {
+  if (!db || !db->db || !commit_hash || !out) return -1;
+  memset(out, 0, sizeof(*out));
+  const char *sql =
+      "SELECT e.id, e.input_text, e.output_text FROM executions e "
+      "WHERE e.commit_hash=? AND NOT EXISTS (SELECT 1 FROM evaluations ev WHERE ev.execution_id=e.id) "
+      "ORDER BY e.id LIMIT 1;";
+  sqlite3_stmt *stmt = NULL;
+  if (sqlite3_prepare_v2(db->db, sql, -1, &stmt, NULL) != SQLITE_OK) return -1;
+  sqlite3_bind_text(stmt, 1, commit_hash, -1, SQLITE_TRANSIENT);
+  int step = sqlite3_step(stmt);
+  if (step != SQLITE_ROW) {
+    sqlite3_finalize(stmt);
+    return (step == SQLITE_DONE) ? 1 : -1;
+  }
+  out->execution_id = sqlite3_column_int64(stmt, 0);
+  const char *in = (const char *)sqlite3_column_text(stmt, 1);
+  const char *ot = (const char *)sqlite3_column_text(stmt, 2);
+  out->input_text = in ? strdup(in) : strdup("");
+  out->output_text = ot ? strdup(ot) : strdup("");
+  sqlite3_finalize(stmt);
+  if (!out->input_text || !out->output_text) {
+    bao_uneval_exec_clear(out);
+    return -1;
+  }
+  return 0;
+}
+
+int bao_db_insert_evaluation(bao_db_t *db, sqlite3_int64 exec_id, const char *score) {
+  if (!db || !db->db || !score) return -1;
+  const char *sql = "INSERT INTO evaluations(execution_id,score) VALUES(?,?);";
+  sqlite3_stmt *stmt = NULL;
+  if (sqlite3_prepare_v2(db->db, sql, -1, &stmt, NULL) != SQLITE_OK) return -1;
+  sqlite3_bind_int64(stmt, 1, exec_id);
+  sqlite3_bind_text(stmt, 2, score, -1, SQLITE_TRANSIENT);
+  int step = sqlite3_step(stmt);
+  sqlite3_finalize(stmt);
+  return (step == SQLITE_DONE) ? 0 : -1;
+}
+
+void bao_db_free_eval_rows(bao_eval_row_t *rows, size_t n) {
+  if (!rows) return;
+  for (size_t i = 0; i < n; i++) {
+    free(rows[i].dataset_id);
+    free(rows[i].score);
+  }
+  free(rows);
+}
+
+int bao_db_list_evaluations_for_commit(bao_db_t *db, const char *commit_hash, bao_eval_row_t **out_rows, size_t *out_n) {
+  if (!db || !db->db || !commit_hash || !out_rows || !out_n) return -1;
+  *out_rows = NULL;
+  *out_n = 0;
+  const char *sql =
+      "SELECT e.dataset_id, ev.score FROM executions e "
+      "JOIN evaluations ev ON ev.execution_id=e.id WHERE e.commit_hash=? ORDER BY e.id;";
+  sqlite3_stmt *stmt = NULL;
+  if (sqlite3_prepare_v2(db->db, sql, -1, &stmt, NULL) != SQLITE_OK) return -1;
+  sqlite3_bind_text(stmt, 1, commit_hash, -1, SQLITE_TRANSIENT);
+  size_t cap = 0;
+  bao_eval_row_t *rows = NULL;
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
+    const char *did = (const char *)sqlite3_column_text(stmt, 0);
+    const char *sc = (const char *)sqlite3_column_text(stmt, 1);
+    if (*out_n + 1 > cap) {
+      size_t ncap = cap ? cap * 2 : 8;
+      bao_eval_row_t *nr = (bao_eval_row_t *)realloc(rows, ncap * sizeof(*rows));
+      if (!nr) {
+        sqlite3_finalize(stmt);
+        bao_db_free_eval_rows(rows, *out_n);
+        return -1;
+      }
+      rows = nr;
+      cap = ncap;
+    }
+    bao_eval_row_t *r = &rows[*out_n];
+    r->dataset_id = did && *did ? strdup(did) : strdup("");
+    r->score = sc && *sc ? strdup(sc) : strdup("?");
+    if (!r->dataset_id || !r->score) {
+      sqlite3_finalize(stmt);
+      bao_db_free_eval_rows(rows, *out_n + 1);
+      return -1;
+    }
+    (*out_n)++;
+  }
+  sqlite3_finalize(stmt);
+  *out_rows = rows;
+  return 0;
+}

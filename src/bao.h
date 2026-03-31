@@ -18,7 +18,7 @@
 #define BAO_STASH_FILE ".bao/stash"
 #define BAO_REMOTES_FILE ".bao/remotes"
 
-#define BAO_VERSION "0.1.0"
+#define BAO_VERSION "0.2.0"
 
 #define BAO_SHORT_HASH_LEN 7
 
