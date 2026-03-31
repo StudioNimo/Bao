@@ -1,5 +1,8 @@
 # Bao (Prompt Version Control System)
 
+[![CI](https://github.com/StudioNimo/Bao/actions/workflows/ci.yml/badge.svg)](https://github.com/StudioNimo/Bao/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Bao is a local-first CLI that treats prompts, configuration, datasets, run outputs, and evaluations as versioned snapshots.
 
 - **Fastest path to try it:** [`docs/QUICKSTART.md`](docs/QUICKSTART.md) or the “Try it now (sample project)” section below
