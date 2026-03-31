@@ -176,4 +176,4 @@ You must **`bao add`** to stage the index before **`bao commit`**. **`bao add -A
 | [`docs/RELEASING.md`](docs/RELEASING.md) | Release checklist |
 | [`docs/ISSUE_FOOTHOLD.md`](docs/ISSUE_FOOTHOLD.md) | Map of open feature issues (#5–#7) to source files |
 | [`docs/sync_protocol.md`](docs/sync_protocol.md) | Draft notes for future `push`/`pull` sync |
-| [`man/bao.1`](man/bao.1) | `man bao` (prototype) |
+| [`man/bao.1`](man/bao.1) | `man bao` (prototype); **ENVIRONMENT** section lists `BAO_*`, `OPENAI_API_KEY`, etc. |
