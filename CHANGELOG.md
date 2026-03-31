@@ -2,6 +2,11 @@
 
 This project follows semantic versioning (`MAJOR.MINOR.PATCH`).
 
+## Unreleased
+
+- Docs: root `.env.example` for `BAO_EDITOR`, `EDITOR` / `VISUAL`, `BAO_NO_EDITOR`, `OPENAI_API_KEY`
+- Docs: Fedora / RHEL-family build dependencies (`dnf` + `sqlite-devel`, `libcurl-devel`)
+
 ## 0.2.0 - 2026-03-31
 
 - **`bao run`**: OpenAI Chat Completions via libcurl; `OPENAI_API_KEY`; `--dry-run` to preview rendered prompts; updates `commits.dataset_hash` for the run file

@@ -36,6 +36,7 @@ There is **no project `bao.yaml` at the repository root** (the tool stays separa
 - **SQLite3 development library** (`libsqlite3` and `sqlite3.h`)
 - **libcurl** (development headers) for `bao run` against the OpenAI HTTP API
 - There are **no prebuilt binaries**; **build from source with `make`**. JSON parsing uses **cJSON (vendored)**; SHA-256 defaults to a **built-in implementation**.
+- Optional: see **`.env.example`** in the repo root for environment variables (`BAO_EDITOR`, `OPENAI_API_KEY`, etc.); copy to `.env` if your shell loads it.
 
 ### 1. Clone the repository
 
@@ -57,6 +58,14 @@ cd Bao
 sudo apt-get update
 sudo apt-get install -y build-essential pkg-config libsqlite3-dev libcurl4-openssl-dev
 ```
+
+- **Fedora / RHEL / AlmaLinux / Rocky Linux** (dnf; on older RHEL use `yum` where appropriate)
+
+```bash
+sudo dnf install -y gcc make sqlite-devel libcurl-devel
+```
+
+Package names may differ slightly by major version; if the build fails on missing headers, install the `-devel` package that provides `sqlite3.h` and libcurl headers.
 
 ### 3. Build
 
