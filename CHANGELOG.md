@@ -4,9 +4,10 @@ This project follows semantic versioning (`MAJOR.MINOR.PATCH`).
 
 ## Unreleased
 
-- Docs: root `.env.example` for `BAO_EDITOR`, `EDITOR` / `VISUAL`, `BAO_NO_EDITOR`, `OPENAI_API_KEY`
+- Docs: root [`.env.example`](.env.example) for `BAO_EDITOR`, `EDITOR` / `VISUAL`, `BAO_NO_EDITOR`, `OPENAI_API_KEY`
 - Docs: Fedora / RHEL-family build dependencies (`dnf` + `sqlite-devel`, `libcurl-devel`)
-- Docs: `ISSUE_FOOTHOLD.md` and `sync_protocol.md` as scaffolding for GitHub issues #5–#7; clearer stub/error strings in `eval` / `push` / `pull` / `run`
+- Docs: [`docs/ISSUE_FOOTHOLD.md`](docs/ISSUE_FOOTHOLD.md) and [`docs/sync_protocol.md`](docs/sync_protocol.md) as scaffolding for GitHub issues #5–#7; clearer stub/error strings in `eval` / `push` / `pull` / `run`
+- Docs: turn repository file/path references in Markdown into clickable relative links (GitHub-friendly)
 
 ## 0.2.0 - 2026-03-31
 
@@ -21,6 +22,6 @@ This project follows semantic versioning (`MAJOR.MINOR.PATCH`).
 - Load settings from `bao.yaml` (flat `key: value`)
 - Multi-provider workflow with `prompts_dir` + `profile`
 - Internal/external integration tests and scenario tests (`make test`)
-- Docs: development concept and naming (`docs/concept_and_naming.md`)
-- CI: tests on PRs to `main` and pushes to `main`; aggregate job `ci (required)` for branch protection (`docs/BRANCH_PROTECTION.md`)
-- Layout: sample project under `examples/sample/` (no root `bao.yaml` or prompts). Added `docs/QUICKSTART.md`
+- Docs: development concept and naming ([`docs/concept_and_naming.md`](docs/concept_and_naming.md))
+- CI: tests on PRs to `main` and pushes to `main`; aggregate job `ci (required)` for branch protection ([`docs/BRANCH_PROTECTION.md`](docs/BRANCH_PROTECTION.md))
+- Layout: sample project under [`examples/sample/`](examples/sample/) (no root `bao.yaml` or prompts). Added [`docs/QUICKSTART.md`](docs/QUICKSTART.md)

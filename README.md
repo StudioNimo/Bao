@@ -6,26 +6,26 @@
 Bao is a local-first CLI that treats prompts, configuration, datasets, run outputs, and evaluations as versioned snapshots.
 
 - **Fastest path to try it:** [`docs/QUICKSTART.md`](docs/QUICKSTART.md) or the “Try it now (sample project)” section below
-- **Background and naming:** `docs/concept_and_naming.md`
-- **Overview:** `docs/system_design.md`
-- **Detailed design (implementation context):** `docs/architecture.md`
+- **Background and naming:** [`docs/concept_and_naming.md`](docs/concept_and_naming.md)
+- **Overview:** [`docs/system_design.md`](docs/system_design.md)
+- **Detailed design (implementation context):** [`docs/architecture.md`](docs/architecture.md)
 
 ## Repository layout
 
 | Location | Contents |
 |----------|----------|
-| `src/`, `Makefile` | **CLI** source and build |
-| `examples/sample/` | **Runnable sample** (`bao.yaml`, `prompts/`, `test_cases.jsonl`). After cloning, start here with `bao init` |
-| `tests/` | Integration and scenario tests |
-| `docs/` | Design and how-to docs |
-| `man/` | `man` page (prototype) |
+| [`src/`](src/), [`Makefile`](Makefile) | **CLI** source and build |
+| [`examples/sample/`](examples/sample/) | **Runnable sample** (`bao.yaml`, `prompts/`, `test_cases.jsonl`). After cloning, start here with `bao init` |
+| [`tests/`](tests/) | Integration and scenario tests |
+| [`docs/`](docs/) | Design and how-to docs |
+| [`man/`](man/) | `man` page (prototype) |
 
-There is **no project `bao.yaml` at the repository root** (the tool stays separate from a working tree). Use `examples/sample/` or any directory you choose.
+There is **no project `bao.yaml` at the repository root** (the tool stays separate from a working tree). Use [`examples/sample/`](examples/sample/) or any directory you choose.
 
 ## License
 
-- `LICENSE` (MIT)
-- Bundled third-party: `THIRD_PARTY_NOTICES.md`
+- [`LICENSE`](LICENSE) (MIT)
+- Bundled third-party: [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)
 
 ## Clone from GitHub and run locally
 
@@ -36,7 +36,7 @@ There is **no project `bao.yaml` at the repository root** (the tool stays separa
 - **SQLite3 development library** (`libsqlite3` and `sqlite3.h`)
 - **libcurl** (development headers) for `bao run` against the OpenAI HTTP API
 - There are **no prebuilt binaries**; **build from source with `make`**. JSON parsing uses **cJSON (vendored)**; SHA-256 defaults to a **built-in implementation**.
-- Optional: see **`.env.example`** in the repo root for environment variables (`BAO_EDITOR`, `OPENAI_API_KEY`, etc.); copy to `.env` if your shell loads it.
+- Optional: see **[`.env.example`](.env.example)** in the repo root for environment variables (`BAO_EDITOR`, `OPENAI_API_KEY`, etc.); copy to `.env` if your shell loads it.
 
 ### 1. Clone the repository
 
@@ -94,7 +94,7 @@ cd examples/sample
 ../../bin/bao log
 ```
 
-See `examples/sample/README.md` and [`docs/QUICKSTART.md`](docs/QUICKSTART.md) for details.
+See [`examples/sample/README.md`](examples/sample/README.md) and [`docs/QUICKSTART.md`](docs/QUICKSTART.md) for details.
 
 ### 6. Run `bao` from anywhere (optional)
 
@@ -112,7 +112,7 @@ echo 'export PATH="/path/to/your/clone/bao/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-- For **`man`**, follow the output of `make install-man` to copy `man/bao.1` into your system `man` directory.
+- For **`man`**, follow the output of `make install-man` to copy [`man/bao.1`](man/bao.1) into your system `man` directory.
 
 ### Build options (optional; rebuild after step 3)
 
@@ -139,7 +139,7 @@ mkdir -p ~/my-bao-project && cd ~/my-bao-project
 /path/to/bao/bin/bao log
 ```
 
-If you are new to Bao, **`examples/sample/`** is easier than the snippet above.
+If you are new to Bao, **[`examples/sample/`](examples/sample/)** is easier than the snippet above.
 
 You must **`bao add`** to stage the index before **`bao commit`**. **`bao add -A`** stages `bao.yaml`, configured prompt files, the dataset, and everything under `prompts/`.
 
@@ -166,14 +166,14 @@ You must **`bao add`** to stage the index before **`bao commit`**. **`bao add -A
 
 | File | Description |
 |------|-------------|
-| `docs/QUICKSTART.md` | Shortest path from clone to sample |
-| `examples/README.md` | Sample directory overview |
-| `examples/sample/README.md` | Try only `examples/sample/` |
-| `docs/concept_and_naming.md` | Concept and naming (steamed-bun metaphor, CLI feel) |
-| `docs/BRANCH_PROTECTION.md` | Require CI on `main` (GitHub branch protection) |
-| `docs/system_design.md` | System design (overview) |
-| `docs/architecture.md` | Detailed design (DB, structs, command flow) |
-| `docs/RELEASING.md` | Release checklist |
-| `docs/ISSUE_FOOTHOLD.md` | Map of open feature issues (#5–#7) to source files |
-| `docs/sync_protocol.md` | Draft notes for future `push`/`pull` sync |
-| `man/bao.1` | `man bao` (prototype) |
+| [`docs/QUICKSTART.md`](docs/QUICKSTART.md) | Shortest path from clone to sample |
+| [`examples/README.md`](examples/README.md) | Sample directory overview |
+| [`examples/sample/README.md`](examples/sample/README.md) | Try only `examples/sample/` |
+| [`docs/concept_and_naming.md`](docs/concept_and_naming.md) | Concept and naming (steamed-bun metaphor, CLI feel) |
+| [`docs/BRANCH_PROTECTION.md`](docs/BRANCH_PROTECTION.md) | Require CI on `main` (GitHub branch protection) |
+| [`docs/system_design.md`](docs/system_design.md) | System design (overview) |
+| [`docs/architecture.md`](docs/architecture.md) | Detailed design (DB, structs, command flow) |
+| [`docs/RELEASING.md`](docs/RELEASING.md) | Release checklist |
+| [`docs/ISSUE_FOOTHOLD.md`](docs/ISSUE_FOOTHOLD.md) | Map of open feature issues (#5–#7) to source files |
+| [`docs/sync_protocol.md`](docs/sync_protocol.md) | Draft notes for future `push`/`pull` sync |
+| [`man/bao.1`](man/bao.1) | `man bao` (prototype) |
