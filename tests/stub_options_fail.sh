@@ -41,6 +41,8 @@ prompts_dir: prompts
 dataset: test_cases.jsonl
 YAML
     "$BAO" init
+    "$BAO" add bao.yaml test_cases.jsonl prompts/p0/system.txt
+    BAO_NO_EDITOR=1 "$BAO" commit --no-edit -m stub
 
     # No-op stubs that still exit 0 (cmd_misc.c)
     expect_ok "$BAO" clone --abort
@@ -53,9 +55,9 @@ YAML
     expect_ok "$BAO" cherry-pick --abort
     expect_ok "$BAO" cherry-pick --continue
 
-    # Expect non-zero exit
+    # Expect non-zero exit (no API key for real run)
     expect_fail "$BAO" run
-    expect_fail "$BAO" run --dry-run
+    expect_ok "$BAO" run --dry-run
     expect_fail "$BAO" run -n 1
     expect_fail "$BAO" eval
     expect_fail "$BAO" eval --json

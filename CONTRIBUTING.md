@@ -9,7 +9,7 @@ Background and naming are described in [`docs/concept_and_naming.md`](docs/conce
 ## Development setup
 
 - macOS / Linux expected
-- Dependencies: `sqlite3` (dev headers), C compiler (`cc`)
+- Dependencies: `sqlite3` (dev headers), **libcurl** (dev headers), C compiler (`cc`)
 - Optional: OpenSSL (`make BAO_USE_OPENSSL=1`)
 
 ## Build / test

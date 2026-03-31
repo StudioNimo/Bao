@@ -49,7 +49,7 @@
 | S17 | Remove from index and disk | `rm --cached` / `rm -r -f` | `s17_*` |
 | S18 | One-line log with provider | `log -n 2 --oneline` contains `provider=` | `s18_*` |
 | S19 | Status formats | `status -s` / `-b` / `--porcelain` | `s19_*` |
-| S20 | Unimplemented commands fail | `run`/`eval`/`push`/`pull`/`clone`/… stubs | `s20_*` |
+| S20 | Stub / failure paths | bare `bao run` (no key) and `bao eval` fail; `push`/`pull`/`clone`/… stubs | `s20_*` |
 | S21 | Multi-provider comparison (fixed result files) | toggle `bao.yaml` + pin `results/openai.jsonl` / `results/anthropic.jsonl` | `scenarios_21_extra_*` |
 
 ## 4. How to run

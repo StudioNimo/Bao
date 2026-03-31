@@ -31,10 +31,12 @@ int cmd_help(bao_ctx_t *ctx, int argc, char **argv) {
       "  restore           --staged, -s/--source <commit>\n"
       "  rm                --cached, -f, -r\n"
       "  stash             list, push/save [-m], pop, apply, clear, drop\n"
-      "  diff              --cached, [<commit> <commit>]\n\n"
+      "  diff              --cached, [--eval] [<commit> <commit>]\n"
+      "  run               [-d dataset.jsonl] [--dry-run] (OpenAI; needs OPENAI_API_KEY)\n"
+      "  eval              interactive 1/2/3 scoring (TTY required)\n\n"
       "Config & remote:\n"
       "  config            --list, --get, (set = edit bao.yaml)\n"
       "  remote            -v, add, remove, rename, set-url, get-url, show\n\n"
-      "Other: run, eval, push/pull (stubs), clone/merge/fetch/rebase/... (stubs)\n");
+      "Other: push/pull (stubs), clone/merge/fetch/rebase/... (stubs)\n");
   return 0;
 }

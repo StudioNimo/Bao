@@ -48,7 +48,7 @@ YAML
       exit 1
     fi
 
-    run_ok "$BAO" diff "$H1" "$H2"
+    run_ok "$BAO" diff --eval "$H1" "$H2"
   )
   rm -rf "$d"
 }

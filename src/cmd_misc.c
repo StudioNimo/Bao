@@ -2,6 +2,7 @@
 
 #include "commits.h"
 #include "config.h"
+#include "db.h"
 #include "refs.h"
 #include "stage.h"
 #include "util.h"
@@ -817,14 +818,168 @@ int cmd_show(bao_ctx_t *ctx, int argc, char **argv) {
   return 0;
 }
 
+static char *read_commit_dataset_hash_json(const char *full64) {
+  char path[512];
+  if (bao_commit_json_path_full(full64, path, sizeof(path)) != 0) return NULL;
+  unsigned char *buf = NULL;
+  size_t len = 0;
+  if (bao_read_file(path, &buf, &len) != 0) {
+    free(buf);
+    return NULL;
+  }
+  cJSON *j = cJSON_Parse((char *)buf);
+  free(buf);
+  if (!j) return NULL;
+  cJSON *dh = cJSON_GetObjectItemCaseSensitive(j, "dataset_hash");
+  char *out = NULL;
+  if (dh && cJSON_IsString(dh) && dh->valuestring && dh->valuestring[0]) out = strdup(dh->valuestring);
+  cJSON_Delete(j);
+  return out;
+}
+
+static const char *lookup_eval_score(bao_eval_row_t *rows, size_t n, const char *dataset_id) {
+  for (size_t i = 0; i < n; i++) {
+    if (!strcmp(rows[i].dataset_id, dataset_id)) return rows[i].score;
+  }
+  return NULL;
+}
+
+static int score_rank(const char *s) {
+  if (!s) return -1;
+  if (!strcmp(s, "BAD")) return 0;
+  if (!strcmp(s, "NEUTRAL")) return 1;
+  if (!strcmp(s, "GOOD")) return 2;
+  return -1;
+}
+
+static void diff_eval_commits(const char *ha, const char *hb) {
+  char *dha = read_commit_dataset_hash_json(ha);
+  char *dhb = read_commit_dataset_hash_json(hb);
+  if (dha && dhb && strcmp(dha, dhb) != 0) {
+    free(dha);
+    free(dhb);
+    bao_die("dataset_hash differs between commits; refusing to compare evaluations");
+  }
+  free(dha);
+  free(dhb);
+
+  bao_db_t db;
+  if (bao_db_open(&db, BAO_DB_FILE) != 0 || bao_db_init_schema(&db) != 0) {
+    bao_db_close(&db);
+    bao_die("failed to open database");
+  }
+  bao_eval_row_t *ra = NULL, *rb = NULL;
+  size_t na = 0, nb = 0;
+  if (bao_db_list_evaluations_for_commit(&db, ha, &ra, &na) != 0 ||
+      bao_db_list_evaluations_for_commit(&db, hb, &rb, &nb) != 0) {
+    bao_db_free_eval_rows(ra, na);
+    bao_db_free_eval_rows(rb, nb);
+    bao_db_close(&db);
+    bao_die("failed to read evaluations");
+  }
+  bao_db_close(&db);
+
+  printf("diff --eval %s vs %s\n", ha, hb);
+  if (na == 0 && nb == 0) {
+    printf("(no evaluations recorded for either commit)\n");
+    bao_db_free_eval_rows(ra, na);
+    bao_db_free_eval_rows(rb, nb);
+    return;
+  }
+
+  /* Union of dataset_ids */
+  size_t cap = na + nb;
+  char **ids = (char **)calloc(cap ? cap : 1, sizeof(char *));
+  size_t nids = 0;
+  if (!ids) {
+    bao_db_free_eval_rows(ra, na);
+    bao_db_free_eval_rows(rb, nb);
+    bao_die("out of memory");
+  }
+  for (size_t i = 0; i < na; i++) {
+    const char *id = ra[i].dataset_id;
+    int dup = 0;
+    for (size_t k = 0; k < nids; k++) {
+      if (!strcmp(ids[k], id)) {
+        dup = 1;
+        break;
+      }
+    }
+    if (!dup) {
+      ids[nids] = strdup(id);
+      if (!ids[nids]) {
+        for (size_t z = 0; z < nids; z++) free(ids[z]);
+        free(ids);
+        bao_db_free_eval_rows(ra, na);
+        bao_db_free_eval_rows(rb, nb);
+        bao_die("out of memory");
+      }
+      nids++;
+    }
+  }
+  for (size_t i = 0; i < nb; i++) {
+    const char *id = rb[i].dataset_id;
+    int dup = 0;
+    for (size_t k = 0; k < nids; k++) {
+      if (!strcmp(ids[k], id)) {
+        dup = 1;
+        break;
+      }
+    }
+    if (!dup) {
+      ids[nids] = strdup(id);
+      if (!ids[nids]) {
+        for (size_t z = 0; z < nids; z++) free(ids[z]);
+        free(ids);
+        bao_db_free_eval_rows(ra, na);
+        bao_db_free_eval_rows(rb, nb);
+        bao_die("out of memory");
+      }
+      nids++;
+    }
+  }
+
+  const char *RED = "\033[31m";
+  const char *GRN = "\033[32m";
+  const char *RST = "\033[0m";
+
+  for (size_t i = 0; i < nids; i++) {
+    const char *sa = lookup_eval_score(ra, na, ids[i]);
+    const char *sb = lookup_eval_score(rb, nb, ids[i]);
+    if (!sa && !sb) continue;
+    if (!sa || !sb) {
+      printf(" %s: %s -> %s (missing on one side)\n", ids[i], sa ? sa : "?", sb ? sb : "?");
+      continue;
+    }
+    int raa = score_rank(sa);
+    int rbb = score_rank(sb);
+    if (rbb < raa)
+      printf("%sREGRESSION%s  %s: %s -> %s\n", RED, RST, ids[i], sa, sb);
+    else if (rbb > raa)
+      printf("%sIMPROVED%s   %s: %s -> %s\n", GRN, RST, ids[i], sa, sb);
+    else
+      printf("  (same)     %s: %s\n", ids[i], sa);
+  }
+
+  for (size_t z = 0; z < nids; z++) free(ids[z]);
+  free(ids);
+  bao_db_free_eval_rows(ra, na);
+  bao_db_free_eval_rows(rb, nb);
+}
+
 int cmd_diff(bao_ctx_t *ctx, int argc, char **argv) {
   (void)ctx;
   if (!bao_file_exists(BAO_HEAD_FILE)) bao_die("not a bao repo (run `bao init` first)");
   int cached = 0;
+  int eval_mode = 0;
   int i = 1;
   for (; i < argc; i++) {
     if (!strcmp(argv[i], "--cached") || !strcmp(argv[i], "--staged")) {
       cached = 1;
+      continue;
+    }
+    if (!strcmp(argv[i], "--eval")) {
+      eval_mode = 1;
       continue;
     }
     if (argv[i][0] == '-') bao_die("unknown option: %s", argv[i]);
@@ -896,6 +1051,9 @@ int cmd_diff(bao_ctx_t *ctx, int argc, char **argv) {
     bao_staged_free(st, n);
     return 0;
   }
+  if (eval_mode && argc - off < 2) bao_die("usage: bao diff --eval <commit> <commit>");
+  if (eval_mode && cached) bao_die("diff --eval cannot be combined with --cached");
+
   if (argc - off >= 2) {
     char *a = bao_resolve_revision(argv[off]);
     if (!a) a = bao_rev_parse(argv[off]);
@@ -905,6 +1063,12 @@ int cmd_diff(bao_ctx_t *ctx, int argc, char **argv) {
       free(a);
       free(b);
       bao_die("could not resolve refs");
+    }
+    if (eval_mode) {
+      diff_eval_commits(a, b);
+      free(a);
+      free(b);
+      return 0;
     }
     char pa[512], pb[512];
     if (bao_commit_json_path_full(a, pa, sizeof(pa)) != 0 || bao_commit_json_path_full(b, pb, sizeof(pb)) != 0) {
@@ -938,7 +1102,7 @@ int cmd_diff(bao_ctx_t *ctx, int argc, char **argv) {
     printf("diff commits %s vs %s\n", ha ? ha : "?", hb ? hb : "?");
     cJSON_Delete(ja);
     cJSON_Delete(jb);
-    printf("(full eval diff is not implemented; compare commit JSON under %s)\n", BAO_COMMITS_DIR);
+    printf("(use `bao diff --eval <a> <b>` to compare human evaluation scores)\n");
     return 0;
   }
   char **st = NULL;

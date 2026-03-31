@@ -2,6 +2,13 @@
 
 This project follows semantic versioning (`MAJOR.MINOR.PATCH`).
 
+## 0.2.0 - 2026-03-31
+
+- **`bao run`**: OpenAI Chat Completions via libcurl; `OPENAI_API_KEY`; `--dry-run` to preview rendered prompts; updates `commits.dataset_hash` for the run file
+- **`bao eval`**: terminal RAW mode; 1/2/3 scores stored in SQLite
+- **`bao diff --eval`**: regression / improvement report between two commits (matching `dataset_hash`)
+- Build: link **libcurl**; CI installs `libcurl4-openssl-dev` on Ubuntu
+
 ## 0.1.0 - 2026-03-31
 
 - Initial public release (git-like CLI subset: `init/add/commit/log/status/checkout/switch`, etc.)
