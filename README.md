@@ -108,7 +108,7 @@ bao version
 - **Persistently** (e.g. zsh): append **an absolute path** to `~/.zshrc`:
 
 ```bash
-echo 'export PATH="/path/to/your/clone/bao/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="/path/to/your/clone/Bao/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
@@ -131,12 +131,12 @@ Work in an empty directory or one that already has `bao.yaml` (the examples belo
 
 ```bash
 mkdir -p ~/my-bao-project && cd ~/my-bao-project
-/path/to/bao/bin/bao init
+/path/to/Bao/bin/bao init
 # After editing bao.yaml and prompts/
-/path/to/bao/bin/bao add -A
+/path/to/Bao/bin/bao add -A
 # or: bao add bao.yaml prompts/ test_cases.jsonl
-/path/to/bao/bin/bao commit -m "first snapshot"
-/path/to/bao/bin/bao log
+/path/to/Bao/bin/bao commit -m "first snapshot"
+/path/to/Bao/bin/bao log
 ```
 
 If you are new to Bao, **[`examples/sample/`](examples/sample/)** is easier than the snippet above.
