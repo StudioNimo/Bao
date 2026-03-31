@@ -204,12 +204,13 @@ int cmd_run(bao_ctx_t *ctx, int argc, char **argv) {
     bao_die("failed to update commit dataset_hash (unknown HEAD commit in db?)");
   }
 
+  /* Provider dispatch: OpenAI below; extend for more vendors (issue #7, docs/ISSUE_FOOTHOLD.md). */
   const char *prov = cfg->provider && cfg->provider[0] ? cfg->provider : "openai";
   if (strcmp(prov, "openai") != 0 && !dry_run) {
     bao_db_close(&db);
     free(commit_hash);
     free_config(cfg);
-    bao_die("provider '%s' is not supported yet (only 'openai'; use --dry-run to preview)", prov);
+    bao_die("provider '%s' is not supported yet (only 'openai'; use --dry-run to preview; issue #7)", prov);
   }
 
   FILE *fp = fopen(dataset_path, "r");

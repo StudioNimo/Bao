@@ -6,6 +6,7 @@ This project follows semantic versioning (`MAJOR.MINOR.PATCH`).
 
 - Docs: root `.env.example` for `BAO_EDITOR`, `EDITOR` / `VISUAL`, `BAO_NO_EDITOR`, `OPENAI_API_KEY`
 - Docs: Fedora / RHEL-family build dependencies (`dnf` + `sqlite-devel`, `libcurl-devel`)
+- Docs: `ISSUE_FOOTHOLD.md` and `sync_protocol.md` as scaffolding for GitHub issues #5–#7; clearer stub/error strings in `eval` / `push` / `pull` / `run`
 
 ## 0.2.0 - 2026-03-31
 
