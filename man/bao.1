@@ -1,0 +1,115 @@
+.TH BAO 1 "2026-03-31" "bao 0.1.0" "User Commands"
+.SH NAME
+bao \- local-first experiment tracker with a git-like CLI subset
+.SH SYNOPSIS
+.B bao
+.I command
+[\fIoptions\fR]
+.SH DESCRIPTION
+\fBbao\fR is a local-first CLI that tracks experiment runs and evaluations.
+It provides a subset of git-like commands for staging files and creating
+content-addressed commits under \fI.bao/\fR.
+.P
+\fBbao\fR is not a full Git implementation. Network operations and history graph
+semantics are intentionally limited in this prototype.
+.SH REPOSITORY
+A Bao repository is a directory containing \fI.bao/\fR.
+.TP
+\fI.bao/HEAD\fR
+Current branch (symbolic ref) or detached commit hash.
+.TP
+\fI.bao/refs/heads/\fR
+Branch references (files containing a commit hash).
+.TP
+\fI.bao/refs/tags/\fR
+Tag references.
+.TP
+\fI.bao/staged\fR
+Staging area (index) storing one relative path per line.
+.SH COMMANDS
+.TP
+.B init
+Initialize a repository in \fI.bao/\fR.
+.TP
+.B add
+Stage paths.
+Supports \fB-A\fR/\fB--all\fR, \fB-u\fR/\fB--update\fR, \fB-n\fR/\fB--dry-run\fR, \fB-v\fR.
+.TP
+.B commit
+Create a commit from the staging area.
+Supports \fB-m\fR, \fB-F\fR/\fB--file\fR, \fB-a\fR/\fB--all\fR, \fB-q\fR, \fB--amend\fR, \fB--edit\fR, \fB--no-edit\fR.
+.RS
+If \fB-m\fR/\fB-F\fR is omitted, \fBbao\fR generates a default message summarizing staged paths.
+If an editor is available (\fB$BAO_EDITOR\fR, \fB$EDITOR\fR, or \fB$VISUAL\fR), you can edit the generated message (use \fB--edit\fR to force).
+To disable editor usage (CI), set \fBBAO_NO_EDITOR=1\fR or pass \fB--no-edit\fR.
+.RE
+.TP
+.B log
+Show commit history (time-ordered).
+Supports \fB-n\fR/\fB--max-count\fR, \fB-1\fR, \fB--oneline\fR.
+.TP
+.B status
+Show branch/HEAD and staged paths.
+Supports \fB-s\fR/\fB--short\fR, \fB-b\fR/\fB--branch\fR, \fB--porcelain\fR.
+.TP
+.B checkout
+Switch branches or detach at a commit.
+Supports \fB-b\fR, \fB-B\fR, \fB--detach\fR.
+.TP
+.B switch
+\fBgit switch\fR-like interface.
+Supports \fB-c\fR, \fB-C\fR, \fB--detach\fR.
+.TP
+.B branch
+List/create/delete/rename branches.
+Supports \fB-d\fR/\fB-D\fR, \fB-m\fR/\fB-M\fR, \fB-v\fR, \fB-c\fR.
+.TP
+.B tag
+List/create/delete tags.
+Supports \fB-l\fR, \fB-d\fR/\fB--delete\fR.
+.TP
+.B show
+Show a commit object.
+Supports \fB--stat\fR, \fB--name-only\fR.
+.TP
+.B diff
+Show differences between commits or between HEAD and index (\fB--cached\fR).
+.TP
+.B reset
+Move HEAD and/or clear the staging area.
+Supports \fB--soft\fR, \fB--mixed\fR, \fB--hard\fR.
+.TP
+.B restore
+Restore the staging area.
+Supports \fB--staged\fR, \fB--source\fR.
+.TP
+.B rm
+Remove paths from disk and/or staging.
+Supports \fB--cached\fR, \fB-r\fR, \fB-f\fR.
+.TP
+.B stash
+Manage a single stash snapshot for the staging area:
+\fBlist\fR, \fBpush\fR, \fBpop\fR, \fBapply\fR, \fBdrop\fR, \fBclear\fR.
+.TP
+.B remote
+Manage remotes stored in \fI.bao/remotes\fR:
+\fBadd\fR, \fBrm\fR, \fBrename\fR, \fBset-url\fR, \fBget-url\fR, \fBshow\fR.
+.TP
+.B version
+Print version.
+.TP
+.B help
+Show a brief help text.
+.SH SECURITY NOTES
+\fBbao\fR only accepts repository-relative paths for staging and removal.
+Absolute paths, path traversal (\fB..\fR), backslashes, control characters,
+and direct operations on \fI.bao/\fR are rejected.
+.SH LIMITATIONS
+This prototype does not implement a full Git working tree, merge/rebase/cherry-pick,
+or network fetch/push/pull.
+.SH FILES
+.TP
+.I bao.yaml
+Project configuration (model, prompts, dataset settings).
+.SH SEE ALSO
+\fBgit\fR(1)

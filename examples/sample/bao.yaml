@@ -1,0 +1,29 @@
+# Bao configuration — 複数プロバイダー管理（同一リポジトリ）
+#
+# bao はフラットな「key: value」行だけを読みます（ネスト YAML は未対応）。
+# 複数ベンダーを同居させる典型パターン（おすすめ）:
+#   - `prompts/` 配下に「プロファイル」ディレクトリを作る（例: prompts/p0/, prompts/p1/）
+#   - 作業中のプロファイルを `profile` で選び、`prompts_dir: prompts` と組み合わせる
+#     （bao は内部で prompts/<profile>/ を参照してプロンプトを解決します）
+#   - provider はベンダー識別子、profile は運用上のラベルとして分離できます
+#   - 切替えたら `bao add bao.yaml` と該当プロンプトをステージして `bao commit`
+#
+# --- 現在アクティブ: OpenAI ---
+provider: openai
+profile: p0
+model: gpt-4.1-mini
+temperature: 0.2
+max_tokens: 4096
+prompts_dir: prompts
+dataset: test_cases.jsonl
+#
+# --- 切替例: Anthropic にする場合は、上のブロックをコメントアウトして以下を有効化 ---
+# provider: anthropic
+# profile: p1
+# model: claude-3-5-sonnet-20241022
+# temperature: 0.2
+# max_tokens: 4096
+# prompts_dir: prompts
+# dataset: test_cases.jsonl
+#
+# 補助: ベンダー固有のメモやスニペットは providers/<name>/ に置き `bao add` して版管理可能。

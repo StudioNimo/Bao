@@ -1,0 +1,25 @@
+.DS_Store
+
+# build outputs
+/bin/
+/build/
+*.o
+
+# bao repositories (runtime state)
+/.bao/
+/examples/sample/.bao/
+
+# demo workspace created by scripts/
+/demo/prompt_versioning_workspace/
+
+# secrets (API keys, local env — never commit)
+.env
+.env.*
+!.env.example
+
+# temp / editor
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
