@@ -1,16 +1,16 @@
 # Security Policy
 
-## 対象範囲
+## Scope
 
-- `bao` 本体（`src/`）
-- 配布物やビルド（`Makefile`）
+- `bao` itself (`src/`)
+- Build and packaging (`Makefile`)
 
-## 脆弱性の報告
+## Reporting vulnerabilities
 
-非公開の連絡先（メール等）は現時点では公開していません。公開しても問題ない範囲の内容は、**GitHub の Issue** にて報告してください。
+We do not publish a private contact channel (email, etc.) at this time. For issues that can be discussed in public, please use **GitHub Issues**.
 
-リポジトリで GitHub の「Private vulnerability reporting」を有効にしている場合は、セキュリティに関する報告をそちらから受け付けられることがあります（リポジトリの **Security** タブを参照）。
+If your repository has GitHub **Private vulnerability reporting** enabled, you may be able to report through the **Security** tab.
 
-## セキュリティ上の注意
+## Design notes
 
-- `bao` はリポジトリ相対パスのみを受け付ける設計です（パストラバーサルや `.bao` 直操作は拒否）。
+- `bao` accepts repository-relative paths only (path traversal and direct `.bao/` manipulation are rejected).

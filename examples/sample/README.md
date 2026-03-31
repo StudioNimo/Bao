@@ -1,18 +1,18 @@
-# サンプル（すぐ試す）
+# Sample (try it now)
 
-リポジトリルートで `make` 済みであることを前提に、**このディレクトリで**初回コミットまで試せます。
+Assumes you have already run `make` at the repository root. From **this directory** you can reach a first commit:
 
 ```bash
-# リポジトリルートから
+# From repository root
 cd examples/sample
 
-# バイナリを相対パスで指定（または事前に PATH に bin を通す）
+# Point to the binary with a relative path (or put bin/ on PATH first)
 ../../bin/bao init
 ../../bin/bao add -A
 ../../bin/bao commit -m "first snapshot"
 ../../bin/bao log
 ```
 
-作業のたびに `bao add` でステージし、`bao commit` でスナップショットを切ります。`.bao/` はこのディレクトリ直下に作成されます。
+Use `bao add` to stage and `bao commit` to snapshot. `.bao/` is created next to this directory.
 
-設定の意味はルートの `bao.yaml` 内コメントを参照してください（複数プロバイダー用の `profile` / `prompts_dir` 構成の例です）。
+See comments in `bao.yaml` for configuration (example `profile` / `prompts_dir` layout for multiple providers).

@@ -22,9 +22,9 @@
 
 #define BAO_SHORT_HASH_LEN 7
 
-// プロンプト設定 (config.c)
-// provider: API ベンダー識別子（openai / anthropic / google 等）。同一リポで複数プロバイダーを扱うときコミット同一性に含める。
-// profile: 任意。prompts_dir が "prompts" のとき prompts/<profile>/ を指すのに使える（省略時は従来どおり prompts_dir 全体）。
+// Prompt settings (config.c)
+// provider: API vendor id (openai, anthropic, google, ...); included in commit identity when switching vendors in one repo.
+// profile: optional; with prompts_dir "prompts", selects prompts/<profile>/ (if omitted, use prompts_dir as before).
 typedef struct {
   char *provider;
   char *profile;
@@ -37,13 +37,13 @@ typedef struct {
   char *prompt_text;
 } BaoConfig;
 
-// テストデータ1行 (template.c / cmd_run 予定)
+// One test row (template.c / future cmd_run)
 typedef struct {
   char *test_id;
   char *raw_json;
 } BaoTestCase;
 
-// LLM応答 (cmd_run 予定)
+// LLM response (future cmd_run)
 typedef struct {
   char *output_text;
   int latency_ms;

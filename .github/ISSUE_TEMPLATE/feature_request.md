@@ -1,21 +1,21 @@
 ---
 name: Feature request
-about: 改善提案・新機能要望
+about: Improvements or new functionality
 labels: enhancement
 ---
 
-## 目的 / 背景
+## Goal / motivation
 
-（どんな課題を解決したいか）
+(What problem should this solve?)
 
-## 提案内容
+## Proposal
 
-（コマンド/オプション/UX を具体的に）
+(Concrete commands, options, or UX)
 
-## 代替案
+## Alternatives
 
-（他のやり方があれば）
+(Other ways to achieve the same thing)
 
-## 追加コンテキスト
+## Additional context
 
-（ユースケース、運用、互換性など）
+(Use cases, operations, compatibility)

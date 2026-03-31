@@ -1,40 +1,38 @@
-# Bao: 開発コンセプトと命名の由来
+# Bao: development concept and naming
 
-## 1. 開発の背景：LLM開発における「再現性」の危機
+## 1. Background: the “reproducibility” problem in LLM work
 
-生成AI（LLM）を活用したシステム開発、特に音声入力からOS操作を試みるようなエージェント開発において、エンジニアは常に一つのジレンマに直面します。
+When building systems on LLMs—especially agent-style flows that go from voice input to OS actions—engineers face a recurring dilemma:
 
-* **非決定論的な振る舞い:** プロンプトを微調整した際、特定のテストケースで精度が上がっても、別のケースで予期せぬ劣化（デグレ）が発生する。
-* **評価の断絶:** 「どのプロンプト」で「どのパラメータ」を使い、「どのデータセット」に対して「どんな評価」を下したのか、という一連のコンテキストがバラバラに管理されている。
-* **Gitの限界:** 従来のGitは「コード（テキスト）」の管理には優れていますが、LLMの「実行結果」や「人間による官能評価」を時間軸で紐付けて管理するようには設計されていません。
+- **Non-deterministic behavior:** Tweaking a prompt may improve one test case while another degrades unexpectedly.
+- **Broken evaluation context:** “Which prompt,” “which parameters,” “which dataset,” and “which human rating” are often tracked in separate places.
+- **Git’s limits:** Git excels at text (code), but it was not designed to tie LLM outputs and human judgments to a single timeline.
 
-これらの課題を解決し、**「プロンプト変更の意図」と「その結果としての精度向上」を科学的に追跡する**ために、Baoの開発は始まりました。
-
----
-
-## 2. 命名の由来：`Bao`（包子）に込めた想い
-
-「Bao」という名前は、単なる可愛らしい響き以上の、システムの根幹を表すメタファーに基づいています。
-
-### 「複雑な具材をひとつに包み込む」
-
-Bao（包子/バオ）の最大の特徴は、多様な具材を一つの皮でギュッと包み込み、完成された一品にすることです。
-
-* **具材（Ingredients）:** プロンプト本文、モデル名、Temperature等のパラメータ、テストデータセット。
-* **皮（Wrapper）:** それらを不変の状態として固定する「コミットハッシュ」。
-* **せいろ（Steamer）:** 履歴を管理するリポジトリ（`.bao/`）。
-
-これら散らかりがちな要素を一つのスナップショットとして「包み込む（Bao）」ことで、開発者はいつでも過去の「味（精度）」を再現し、比較することが可能になります。
+Bao exists to **track the intent behind prompt changes and the resulting accuracy improvements** in a reproducible way.
 
 ---
 
-## 3. 設計思想：道具としての「手触り」
+## 2. Why “Bao” (the steamed-bun metaphor)
 
-毎日使うCLIツールとして、機能性だけでなく「叩いていて心地よいこと」を重視しています。
+The name reflects a metaphor for how the system works—not just a cute sound.
 
-* **タイピングのフロー:**  
-  `b` (左手) → `a` (左手) → `o` (右手) というキー配置は、ホームポジションからの移動が少なく、ターミナル上で流れるように入力できます。
-* **Gitライクな手触り:**  
-  Gitの生みの親、リーナス・トーバルズの思想に敬意を表し、あえてC言語でネイティブ構築しました。Python等のスクリプト言語のような起動の「タメ」がなく、叩いた瞬間に反応する軽快さは、開発者の思考を妨げないためのこだわりです。
+### “Wrapping many ingredients in one”
 
-> **"Baoは、プロンプトという不確かな存在を、確かな「資産」へと変えるための器です。"**
+A bao wraps varied fillings in one skin to make a single dish.
+
+- **Ingredients:** Prompt text, model name, parameters like temperature, test datasets.
+- **Wrapper (skin):** The commit hash that freezes those pieces as a single immutable snapshot.
+- **Steamer:** The repository (`.bao/`) that holds history.
+
+By “wrapping” scattered pieces into one snapshot, developers can replay and compare past “flavors” (accuracy).
+
+---
+
+## 3. Design: how the CLI should feel
+
+As a daily-driver CLI, we care about ergonomics as well as features.
+
+- **Typing flow:** `b` (left) → `a` (left) → `o` (right) keeps movement small from the home row.
+- **Git-like feel:** Out of respect for Linus Torvalds’ ideas, we implemented a native C tool so startup feels instant—no script interpreter “warm-up” getting in the way of thinking.
+
+> **“Bao turns prompts—uncertain by nature—into durable assets.”**

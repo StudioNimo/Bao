@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 内部結合: 同一プロセス内でリポジトリの状態遷移・オブジェクト・refs を検証する。
+# Internal integration: state transitions, objects, and refs in one process.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BAO="${BAO:-$ROOT/bin/bao}"
@@ -15,7 +15,7 @@ cd "$TMP/repo"
 
 "$BAO" init
 
-# 1) コミットオブジェクトが full64 ファイル名で保存される
+# 1) Commit object stored as full64 filename
 "$BAO" add bao.yaml prompts/p0/system.txt prompts/p1/system.txt test_cases.jsonl
 "$BAO" commit -m "first"
 FULL1=$("$BAO" rev-parse HEAD)
@@ -34,21 +34,21 @@ if [ "$FH" != "$FULL1" ]; then
   exit 1
 fi
 
-# 2) rev-parse でフル一致
+# 2) rev-parse matches full hash
 RP=$("$BAO" rev-parse HEAD)
 if [ "$RP" != "$FULL1" ]; then
   echo "FAIL: rev-parse HEAD != HEAD file"
   exit 1
 fi
 
-# 3) 短縮表示 (--short=7)
+# 3) Short display (--short=7)
 S7=$("$BAO" rev-parse --short=7 HEAD)
 if [ "${#S7}" -ne 7 ] || [ "${FULL1:0:7}" != "$S7" ]; then
   echo "FAIL: short prefix expected ${FULL1:0:7} got $S7"
   exit 1
 fi
 
-# 4) 2 コミット目 + HEAD~1
+# 4) Second commit + HEAD~1
 "$BAO" add bao.yaml prompts/p0/system.txt prompts/p1/system.txt test_cases.jsonl
 "$BAO" commit -m "second"
 FULL2=$("$BAO" rev-parse HEAD)
@@ -58,21 +58,21 @@ if [ "$P1" != "$FULL1" ]; then
   exit 1
 fi
 
-# 5) プレフィックス解決（一意）
+# 5) Prefix resolution (unique)
 PF=$("$BAO" rev-parse "${FULL2:0:12}")
 if [ "$PF" != "$FULL2" ]; then
   echo "FAIL: 12-char prefix should resolve to $FULL2"
   exit 1
 fi
 
-# 6) log が短い表示（先頭行に 7 hex 程度）
+# 6) log --oneline starts with ~7 hex
 LOG1=$("$BAO" log -n 1 --oneline | head -1 | awk '{print $1}')
 if [ "${#LOG1}" -ne 7 ]; then
   echo "FAIL: log oneline should start with 7-char short, got '$LOG1'"
   exit 1
 fi
 
-# 7) checkout detached で ref がフル64
+# 7) Detached checkout stores full 64-char ref
 "$BAO" checkout --detach "$FULL1"
 HD=$("$BAO" rev-parse HEAD)
 if [ "$HD" != "$FULL1" ] || [ "${#HD}" -ne 64 ]; then
@@ -80,7 +80,7 @@ if [ "$HD" != "$FULL1" ] || [ "${#HD}" -ne 64 ]; then
   exit 1
 fi
 
-# 8) restore --source（インデックスをコミットに合わせる）
+# 8) restore --source (align index to commit)
 "$BAO" restore --source "$FULL2" --staged
 
 echo "OK internal integration tests"

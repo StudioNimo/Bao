@@ -72,7 +72,7 @@ int cmd_checkout(bao_ctx_t *ctx, int argc, char **argv) {
 
   int create_b = 0, create_B = 0, detach = 0;
   char *new_branch = NULL;
-  /* main は argv+1 を渡すため argv[0] がサブコマンド名 "checkout" */
+  /* main passes argv+1 so argv[0] is the subcommand "checkout" */
   int i = 0;
   if (argc > 0 && !strcmp(argv[0], "checkout")) i = 1;
   while (i < argc) {

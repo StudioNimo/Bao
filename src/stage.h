@@ -29,5 +29,5 @@ int bao_staged_collect_add_all_paths(char ***out, size_t *n);
 // Like git add -u: drop staged paths whose files no longer exist; keep the rest.
 int bao_staged_update_index(void);
 // Replace index with staged_files from commit JSON.
-/* commit_id: HEAD / rev / フル64 / プレフィックス / レガシー7桁ファイル名 */
+/* commit_id: HEAD / rev / full64 / prefix / legacy 7-hex filename */
 int bao_staged_restore_from_commit_short(const char *commit_id);

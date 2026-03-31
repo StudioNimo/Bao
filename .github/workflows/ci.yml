@@ -1,6 +1,6 @@
 name: ci
 
-# main への PR では必ず実行（ブランチ保護の「必須ステータス」に指定しやすい）
+# Runs on PRs to main (easy to mark as a required status in branch protection)
 on:
   push:
     branches: [main]
@@ -34,7 +34,7 @@ jobs:
       - name: Test
         run: make test
 
-  # マトリックス全体が成功したときだけ成功する 1 本のチェック（ブランチ保護でこれ 1 つを必須にできる）
+  # Single aggregate check that succeeds only if all matrix jobs succeed (use as one required check)
   ci-success:
     name: ci (required)
     needs: test

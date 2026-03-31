@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 外部結合: ビルド済み bin/bao をサブシェル・外部コマンドとして実行。
+# External integration: run built bin/bao as an external command via PATH.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export PATH="$ROOT/bin:$PATH"
@@ -21,14 +21,14 @@ case "$out" in
     ;;
 esac
 
-# フルハッシュで rev-parse
+# rev-parse full hash
 F=$(bao rev-parse HEAD)
 if [ "${#F}" -ne 64 ]; then
   echo "FAIL: external: rev-parse len"
   exit 1
 fi
 
-# ヘルプ・バージョンが落ちない
+# help and version do not crash
 bao version >/dev/null
 bao help >/dev/null
 

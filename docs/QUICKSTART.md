@@ -1,19 +1,19 @@
-# クイックスタート
+# Quickstart
 
-GitHub から clone して、最短で `bao` を触る手順です。詳細はルートの [`README.md`](../README.md) も参照してください。
+Clone from GitHub and build `bao` with minimal steps. See the root [`README.md`](../README.md) for full details.
 
-## 1. 取得とビルド
+## 1. Clone and build
 
 ```bash
 git clone https://github.com/OWNER/bao.git
 cd bao
-# 依存: SQLite3 開発用ライブラリ、C コンパイラ（README の「必要なもの」を参照）
+# Dependencies: SQLite3 dev library, C compiler (see README “Prerequisites”)
 make
 ```
 
-## 2. サンプルで初回コミット
+## 2. First commit with the sample
 
-ツールのソースと混ざらないよう、サンプルは `examples/sample/` にあります。
+The sample lives under `examples/sample/` so it stays separate from the tool sources.
 
 ```bash
 cd examples/sample
@@ -23,15 +23,15 @@ cd examples/sample
 ../../bin/bao log
 ```
 
-## 3. 自分のプロジェクトで使う
+## 3. Use your own project
 
-空のディレクトリで:
+In an empty directory:
 
 ```bash
 /path/to/bao/bin/bao init
-# bao.yaml と prompts/ を編集
+# Edit bao.yaml and prompts/
 /path/to/bao/bin/bao add -A
 /path/to/bao/bin/bao commit -m "..."
 ```
 
-または `examples/sample/` をコピーしてから編集しても構いません。
+You can also copy `examples/sample/` and edit from there.

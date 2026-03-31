@@ -1,16 +1,16 @@
 # Releasing
 
-このドキュメントは、Bao を公開リリースする手順のメモです。
+Checklist for publishing a Bao release.
 
-## リリース前チェック
+## Pre-release
 
-- `make test` が通る
-- 利用者向け手順（`README.md` / `docs/QUICKSTART.md`）が `examples/sample/` のパスと一致している
-- `CHANGELOG.md` を更新
-- `man/bao.1` のバージョン（ヘッダの `bao X.Y.Z`）を更新
-- `src/bao.h` の `BAO_VERSION` を更新
+- `make test` passes
+- User-facing steps in `README.md` / `docs/QUICKSTART.md` match paths under `examples/sample/`
+- Update `CHANGELOG.md`
+- Update `man/bao.1` version (header line `bao X.Y.Z`)
+- Update `BAO_VERSION` in `src/bao.h`
 
-## タグ
+## Tags
 
 ```bash
 git tag -a vX.Y.Z -m "vX.Y.Z"
@@ -19,4 +19,4 @@ git push --tags
 
 ## GitHub Releases
 
-- リリースノートに `CHANGELOG.md` の該当箇所を貼り付け
+- Paste the relevant section from `CHANGELOG.md` into the release notes

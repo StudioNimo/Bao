@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# S21（追加シナリオ）: 複数プロバイダー比較（結果ファイル名固定）。
-# S01〜S20 は scenarios_20_common.sh のみ。本ファイルは write_minimal_repo 等を source して利用。
+# S21 (extra): multi-provider comparison with fixed result filenames.
+# S01–S20 live only in scenarios_20_common.sh; this file sources helpers like write_minimal_repo.
 set -euo pipefail
 
 TESTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

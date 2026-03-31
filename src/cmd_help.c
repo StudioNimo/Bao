@@ -11,7 +11,7 @@ int cmd_help(bao_ctx_t *ctx, int argc, char **argv) {
     return 1;
   }
   printf(
-      "Bao — local-first experiment tracker (git-like CLI subset)\n\n"
+      "Bao - local-first experiment tracker (git-like CLI subset)\n\n"
       "Usage: bao <command> [options]\n\n"
       "Core:\n"
       "  init              Create .bao/ and empty main branch\n"
@@ -35,6 +35,6 @@ int cmd_help(bao_ctx_t *ctx, int argc, char **argv) {
       "Config & remote:\n"
       "  config            --list, --get, (set = edit bao.yaml)\n"
       "  remote            -v, add, remove, rename, set-url, get-url, show\n\n"
-      "Other: run, eval, push/pull (stubs), clone/merge/fetch/rebase/… (stubs)\n");
+      "Other: run, eval, push/pull (stubs), clone/merge/fetch/rebase/... (stubs)\n");
   return 0;
 }

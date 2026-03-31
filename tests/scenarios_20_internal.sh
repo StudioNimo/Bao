@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 内部結合: リポジトリ内の bin/bao を直接実行して 20 シナリオを検証。
+# Internal integration: run scenarios 20 with repo bin/bao directly.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export BAO="${BAO:-$ROOT/bin/bao}"

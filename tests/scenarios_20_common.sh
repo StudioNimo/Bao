@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# S01〜S20 のユーザーシナリオに基づく結合テスト（共通ロジック）。S21 は scenarios_21_extra_common.sh。
-# 使用法: BAO を設定し、このファイルを source するか、*_internal.sh / *_external.sh から呼ぶ。
-# 前提: リポジトリルートで make 済み bin/bao、または PATH 上の bao。
+# Integration tests for user scenarios S01–S20 (shared logic). S21 is in scenarios_21_extra_common.sh.
+# Usage: set BAO, then source this file or run via *_internal.sh / *_external.sh.
+# Requires: built bin/bao at repo root or bao on PATH.
 set -euo pipefail
 
 TESTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -412,7 +412,7 @@ run_scenarios_20() {
   echo "OK scenarios 20 ($BAO)"
 }
 
-# 直接実行された場合
+# When executed directly
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   export BAO="${BAO:-$ROOT/bin/bao}"
   run_scenarios_20

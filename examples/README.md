@@ -1,9 +1,9 @@
-# サンプルプロジェクト
+# Sample projects
 
-このディレクトリには、**ツール本体（`src/`）とは別に**、すぐ試せる最小の Bao プロジェクトが置いてあります。
+This directory holds a **minimal Bao project** separate from the **tool sources (`src/`)** so you can try things quickly.
 
-| パス | 内容 |
-|------|------|
-| `sample/` | `bao.yaml`・`prompts/`・`test_cases.jsonl` を含む標準サンプル（README のクイックスタート・結合テストの入力にも使用） |
+| Path | Contents |
+|------|----------|
+| `sample/` | Standard sample with `bao.yaml`, `prompts/`, and `test_cases.jsonl` (used by the quickstart and integration tests) |
 
-自分用のプロジェクトを作るときは、`sample/` を別ディレクトリにコピーするか、空のディレクトリで `bao init` して `bao.yaml` を編集してください。
+To start your own project, copy `sample/` elsewhere or run `bao init` in an empty directory and edit `bao.yaml`.

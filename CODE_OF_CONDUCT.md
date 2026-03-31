@@ -1,21 +1,21 @@
 # Code of Conduct
 
-このプロジェクトでは、すべての参加者が安心して参加できる場を維持するため、以下を遵守します。
+We want everyone to participate comfortably. By participating, you agree to the following.
 
-## 私たちの約束
+## Our standards
 
-- 尊重と配慮をもってコミュニケーションします
-- 建設的なフィードバックを心がけます
-- ハラスメント（侮辱、脅迫、差別、性的表現など）を許容しません
+- Communicate with respect and consideration
+- Prefer constructive feedback
+- Do not tolerate harassment (insults, threats, discrimination, sexualized content, etc.)
 
-## 適用範囲
+## Scope
 
-GitHub 上の Issue / PR / Discussion / Review、その他プロジェクトに関連するすべての場で適用されます。
+This applies to Issues, PRs, Discussions, reviews, and anywhere else project-related on GitHub.
 
-## 違反の報告
+## Reporting issues
 
-プロジェクトメンテナへ連絡してください。公開の場での議論が難しい場合の取り扱いは [`SECURITY.md`](SECURITY.md) を参照してください。
+Contact the project maintainers. If public discussion is difficult, see [`SECURITY.md`](SECURITY.md) for how we handle sensitive reports.
 
-## 運用
+## Enforcement
 
-違反が確認された場合、警告・一時停止・追放などの措置を取る場合があります。
+Maintainers may respond with warnings, temporary restrictions, or removal from the project for violations.

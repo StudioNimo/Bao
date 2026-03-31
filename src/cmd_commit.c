@@ -47,7 +47,7 @@ static int hash_file_hex(const char *path, char out_hex[65]) {
 static int is_prompt_staged_path(const char *path, const BaoConfig *cfg) {
   if (!path) return 0;
   if (strncmp(path, "prompts/", 8) == 0) return 1;
-  /* プロバイダー別ディレクトリ（例: providers/openai/system.txt） */
+  /* Per-provider dirs (e.g. providers/openai/system.txt) */
   if (strncmp(path, "providers/", 10) == 0) return 1;
   if (cfg->prompt_filepath && strcmp(path, cfg->prompt_filepath) == 0) return 1;
   return 0;
@@ -251,7 +251,7 @@ static char *read_message_from_file_strip_comments(const char *path) {
   if (bao_read_file(path, &buf, &len) != 0) return NULL;
   char *s = (char *)buf;
 
-  /* Git 風: '#' 行はコメントとして無視。空行は保持しつつ前後の空白は落とす。 */
+  /* Git-like: '#' lines are comments; trim line whitespace, keep blank lines */
   char *out = (char *)malloc(len + 1);
   if (!out) {
     free(buf);
@@ -277,7 +277,7 @@ static char *read_message_from_file_strip_comments(const char *path) {
   out[w] = 0;
   free(buf);
 
-  /* 先頭・末尾の空行を削る */
+  /* Strip leading/trailing blank lines */
   while (out[0] == '\n') memmove(out, out + 1, strlen(out));
   size_t n = strlen(out);
   while (n > 0 && (out[n - 1] == '\n' || out[n - 1] == '\r')) out[--n] = 0;
@@ -296,7 +296,7 @@ static char *maybe_edit_commit_message(const char *initial, const char *const *s
   char *edit_path = bao_strdup_printf("%s/COMMIT_EDITMSG", BAO_DIR);
   if (!edit_path) return strdup(initial);
 
-  /* テンプレート: 初期メッセージ + コメントで staged ファイル一覧 */
+  /* Template: initial message + comment block listing staged files */
   size_t cap = strlen(initial) + 256 + n_staged * 128;
   char *tmpl = (char *)malloc(cap);
   if (!tmpl) {
@@ -493,7 +493,7 @@ int cmd_commit(bao_ctx_t *ctx, int argc, char **argv) {
     bao_die("failed to load bao.yaml (model, prompt_file or prompts_dir required)");
   }
 
-  /* メッセージ: -m/-F が無い場合は自動生成。エディタ編集は --edit / (EDITORあり) で可能。 */
+  /* Message: auto-generate if no -m/-F; editor via --edit or when EDITOR is set */
   if (!message || !*message) {
     char *auto_msg = generate_commit_message(cfg, (const char *const *)staged, n_staged, amend);
     if (!auto_msg) {

@@ -300,7 +300,7 @@ int cmd_status(bao_ctx_t *ctx, int argc, char **argv) {
   if (bao_staged_load(&st, &n) != 0) bao_die("failed to read staging area");
   printf("Changes to be committed:\n");
   if (n == 0) {
-    printf("  (none — use `bao add`)\n");
+    printf("  (none - use `bao add`)\n");
   } else {
     for (size_t i = 0; i < n; i++) printf("  staged: %s\n", st[i]);
   }
@@ -1158,7 +1158,7 @@ int cmd_rev_parse(bao_ctx_t *ctx, int argc, char **argv) {
   if (!bao_file_exists(BAO_HEAD_FILE)) bao_die("not a bao repo (run `bao init` first)");
   int i = 0;
   if (argc > 0 && strcmp(argv[0], "rev-parse") == 0) i = 1;
-  /* 0 = フルハッシュを出力。--short / --short=N のときだけ短縮。 */
+  /* Default: print full hash; shorten only with --short / --short=N */
   int short_len = 0;
   int show_toplevel = 0, show_gitdir = 0;
   int verify = 0;
@@ -1273,7 +1273,7 @@ int cmd_config(bao_ctx_t *ctx, int argc, char **argv) {
         bao_die("out of memory");
       }
       if (bao_is_dir(p)) {
-        /* プロファイルとして有効なのは、ディレクトリ直下に実ファイルが1つ以上あるものだけ。 */
+        /* A profile is valid only if its directory has at least one regular file under it. */
         int has_file = 0;
         DIR *pd = opendir(p);
         if (pd) {

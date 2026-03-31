@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 外部結合: S21 のみ（PATH 上の bao）。
+# External integration: S21 only (bao on PATH).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export PATH="$ROOT/bin:$PATH"

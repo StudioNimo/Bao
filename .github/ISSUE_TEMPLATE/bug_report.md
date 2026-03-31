@@ -1,29 +1,29 @@
 ---
 name: Bug report
-about: 動作不正・クラッシュ・期待と異なる挙動の報告
+about: Incorrect behavior, crashes, or unexpected results
 labels: bug
 ---
 
-## 概要
+## Summary
 
-（何が起きたかを簡潔に）
+(Short description of what happened)
 
-## 再現手順
+## Steps to reproduce
 
 1.
 2.
 3.
 
-## 期待する結果
+## Expected behavior
 
-## 実際の結果（ログ/出力）
+## Actual behavior (logs / output)
 
 ```text
-貼り付け
+paste here
 ```
 
-## 環境
+## Environment
 
 - OS:
-- シェル:
+- Shell:
 - `bao version`:

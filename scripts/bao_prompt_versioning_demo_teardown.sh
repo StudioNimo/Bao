@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# bao_prompt_versioning_demo_setup.sh で作成したデモ環境を削除してまっさらに戻す。
-# 使い方:
+# Removes the demo workspace created by bao_prompt_versioning_demo_setup.sh.
+# Usage:
 #   ./scripts/bao_prompt_versioning_demo_teardown.sh
-# 環境変数:
-#   DEMO_ROOT  削除対象（既定: <repo>/demo/prompt_versioning_workspace）
+# Environment:
+#   DEMO_ROOT  path to remove (default: <repo>/demo/prompt_versioning_workspace)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

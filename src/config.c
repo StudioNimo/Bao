@@ -144,7 +144,7 @@ BaoConfig *load_config(const char *path) {
     return NULL;
   }
 
-  /* prompts_dir: prompts + profile → prompts/<profile>/ （複数プロバイダー用レイアウト） */
+  /* prompts_dir + profile -> prompts/<profile>/ (multi-provider layout) */
   if (cfg->prompts_dir && cfg->profile && strcmp(cfg->prompts_dir, "prompts") == 0) {
     char *nd = bao_strdup_printf("prompts/%s", cfg->profile);
     if (!nd) {
@@ -198,7 +198,7 @@ BaoConfig *load_config_with_profile(const char *path, const char *profile_overri
     return NULL;
   }
 
-  /* prompts_dir: prompts + profile → prompts/<profile>/ （複数プロバイダー用レイアウト） */
+  /* prompts_dir + profile -> prompts/<profile>/ (multi-provider layout) */
   if (cfg->prompts_dir && cfg->profile && strcmp(cfg->prompts_dir, "prompts") == 0) {
     char *nd = bao_strdup_printf("prompts/%s", cfg->profile);
     if (!nd) {

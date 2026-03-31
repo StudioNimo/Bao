@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 内部結合: S21 のみ（bin/bao 直接）。
+# Internal integration: S21 only (bin/bao directly).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export BAO="${BAO:-$ROOT/bin/bao}"

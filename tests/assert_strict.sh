@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# スモークより厳しい期待出力検証（remote -v / status --porcelain / stash 状態遷移）
+# Stricter than smoke: remote -v / status --porcelain / stash transitions
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BAO="${BAO:-$ROOT/bin/bao}"
@@ -33,10 +33,10 @@ YAML
 SHORT=$("$BAO" rev-parse --short=7 HEAD)
 [ "${#SHORT}" -eq 7 ] || die "short hash length"
 
-# 1) status --porcelain 行形式（実装: cmd_status）
+# 1) status --porcelain lines (cmd_status)
 #    # branch.oid <7hex>
 #    # branch.head <branch>
-#    M  <path>  … ステージ済み
+#    M  <path>  … staged
 OUT=$("$BAO" status --porcelain)
 echo "$OUT" | grep -q '^# branch.oid '"$SHORT"'$' || die "porcelain: branch.oid line should be 7-hex HEAD"
 echo "$OUT" | grep -q '^# branch.head main$' || die "porcelain: branch.head should be main on init"
@@ -49,7 +49,7 @@ echo "$OUT2" | grep -q '^M  bao\.yaml$' || die "porcelain: expected 'M  bao.yaml
 echo "$OUT2" | grep -q '^M  test_cases\.jsonl$' || die "porcelain: expected 'M  test_cases.jsonl'"
 echo "$OUT2" | grep -q '^M  prompts/system\.txt$' || die "porcelain: expected 'M  prompts/system.txt'"
 
-# 2) remote -v（実装: remote_list verbose → name<TAB>url）
+# 2) remote -v (remote_list verbose → name<TAB>url)
 R0=$("$BAO" remote -v)
 [ "$R0" = "(no remotes configured)" ] || die "remote -v empty: got [$R0]"
 
@@ -62,7 +62,7 @@ R2=$("$BAO" remote -v)
 echo "$R2" | grep -q $'^origin\thttps://example.invalid/repo$' || die "remote -v line 1"
 echo "$R2" | grep -q $'^upstream\thttps://example.invalid/up$' || die "remote -v line 2"
 
-# 3) stash 状態遷移（list / push / list / pop / list）
+# 3) stash transitions (list / push / list / pop / list)
 L0=$("$BAO" stash list)
 [ "$L0" = "stash@{0}: empty" ] || die "stash list before: [$L0]"
 
@@ -84,7 +84,7 @@ L3=$("$BAO" stash pop 2>&1)
 L4=$("$BAO" stash list)
 [ "$L4" = "stash@{0}: empty" ] || die "stash list after pop: [$L4]"
 
-# stash apply は stash を残す（push → apply → ファイル残存）
+# stash apply keeps stash file (push → apply → file still present)
 "$BAO" add bao.yaml
 "$BAO" stash push -m "x" >/dev/null
 [ -f .bao/stash ] || die "stash file after second push"

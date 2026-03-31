@@ -1,53 +1,52 @@
 # Bao (Prompt Version Control System)
 
-Baoは、プロンプト・設定・データセット・実行結果・評価をスナップショットとして扱うローカルファーストなCLIです。
+Bao is a local-first CLI that treats prompts, configuration, datasets, run outputs, and evaluations as versioned snapshots.
 
-- **最短の試し方:** [`docs/QUICKSTART.md`](docs/QUICKSTART.md) または下の「すぐ試す（サンプルプロジェクト）」
-- **開発の経緯・命名の由来:** `docs/concept_and_naming.md`
-- **概要:** `docs/system_design.md`
-- **詳細設計（実装のコア・コンテキスト）:** `docs/architecture.md`
+- **Fastest path to try it:** [`docs/QUICKSTART.md`](docs/QUICKSTART.md) or the “Try it now (sample project)” section below
+- **Background and naming:** `docs/concept_and_naming.md`
+- **Overview:** `docs/system_design.md`
+- **Detailed design (implementation context):** `docs/architecture.md`
 
-## リポジトリの構成
+## Repository layout
 
-| 場所 | 内容 |
-|------|------|
-| `src/`, `Makefile` | **CLI 本体**のソースとビルド |
-| `examples/sample/` | **すぐ試せるサンプル**（`bao.yaml`・`prompts/`・`test_cases.jsonl`）。clone 後はここで `bao init` から始められます |
-| `tests/` | 結合テスト・シナリオテスト |
-| `docs/` | 設計・手順ドキュメント |
-| `man/` | `man` 用ページ（プロトタイプ） |
+| Location | Contents |
+|----------|----------|
+| `src/`, `Makefile` | **CLI** source and build |
+| `examples/sample/` | **Runnable sample** (`bao.yaml`, `prompts/`, `test_cases.jsonl`). After cloning, start here with `bao init` |
+| `tests/` | Integration and scenario tests |
+| `docs/` | Design and how-to docs |
+| `man/` | `man` page (prototype) |
 
-ルート直下には **プロジェクト用の `bao.yaml` は置いていません**（ツールと作業ツリーを分離するため）。実際の作業は `examples/sample/` か、任意のディレクトリで行います。
+There is **no project `bao.yaml` at the repository root** (the tool stays separate from a working tree). Use `examples/sample/` or any directory you choose.
 
-## ライセンス
+## License
 
-- `LICENSE`（MIT）
-- 同梱しているサードパーティ: `THIRD_PARTY_NOTICES.md`
+- `LICENSE` (MIT)
+- Bundled third-party: `THIRD_PARTY_NOTICES.md`
 
-## GitHub から取得してローカルで使う
+## Clone from GitHub and run locally
 
-### 必要なもの
+### Prerequisites
 
-- **Git**（リポジトリの取得）
-- **C コンパイラ**（`cc` — macOS では Clang、Linux では GCC など）
-- **SQLite3 の開発用ライブラリ**（`libsqlite3` とヘッダ `sqlite3.h`）
-- ビルド済みバイナリの配布はしていないため、**ソースから `make` でビルド**します。JSON パーサは **cJSON（リポジトリ同梱）**、SHA-256 はデフォルトで **内蔵実装**です。
+- **Git** (to clone)
+- **C compiler** (`cc` — Clang on macOS, GCC on Linux, etc.)
+- **SQLite3 development library** (`libsqlite3` and `sqlite3.h`)
+- There are **no prebuilt binaries**; **build from source with `make`**. JSON parsing uses **cJSON (vendored)**; SHA-256 defaults to a **built-in implementation**.
 
-### 1. リポジトリを取得する
+### 1. Clone the repository
 
-公開先の URL に合わせてください（フォークした場合はフォークの URL）。
+Use the URL of your fork or this repo.
 
 ```bash
 git clone https://github.com/StudioNimo/Bao.git
-cd bao
+cd Bao
 ```
 
-
-### 2. 依存パッケージの例（OS ごと）
+### 2. Install dependencies (examples)
 
 - **macOS**  
-  - コマンドラインツール: `xcode-select --install`（未導入の場合）  
-  - `sqlite3.h` が見つからないとき: `brew install sqlite` など
+  - Command-line tools: `xcode-select --install` if needed  
+  - If `sqlite3.h` is missing: `brew install sqlite`, etc.
 - **Ubuntu / Debian**
 
 ```bash
@@ -55,24 +54,24 @@ sudo apt-get update
 sudo apt-get install -y build-essential pkg-config libsqlite3-dev
 ```
 
-### 3. ビルドする
+### 3. Build
 
 ```bash
 make
 ```
 
-成功すると `bin/bao` が生成されます。
+On success, `bin/bao` is created.
 
-### 4. 動作確認する
+### 4. Smoke test
 
 ```bash
 ./bin/bao version
 ./bin/bao help
 ```
 
-### 5. すぐ試す（サンプルプロジェクト）
+### 5. Try it now (sample project)
 
-ビルド後、付属のサンプルで初回コミットまで試せます。
+After building, you can reach a first commit with the bundled sample:
 
 ```bash
 cd examples/sample
@@ -82,58 +81,58 @@ cd examples/sample
 ../../bin/bao log
 ```
 
-詳細は `examples/sample/README.md` および [`docs/QUICKSTART.md`](docs/QUICKSTART.md) を参照してください。
+See `examples/sample/README.md` and [`docs/QUICKSTART.md`](docs/QUICKSTART.md) for details.
 
-### 6. どこからでも `bao` と打てるようにする（任意）
+### 6. Run `bao` from anywhere (optional)
 
-- **そのシェルだけ**（クローンしたディレクトリで）:
+- **Current shell only** (from the clone directory):
 
 ```bash
 export PATH="$(pwd)/bin:$PATH"
 bao version
 ```
 
-- **恒久的に**（例: zsh）: `~/.zshrc` に次のように**絶対パス**で追記します。
+- **Persistently** (e.g. zsh): append **an absolute path** to `~/.zshrc`:
 
 ```bash
-echo 'export PATH="/あなたがクローンした場所/bao/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="/path/to/your/clone/bao/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-- **man ページ**を入れる場合は、`make install-man` の表示に従って `man/bao.1` をシステムの `man` ディレクトリへコピーしてください。
+- For **`man`**, follow the output of `make install-man` to copy `man/bao.1` into your system `man` directory.
 
-### ビルドオプション（任意・上記ステップ 3 の再ビルド）
+### Build options (optional; rebuild after step 3)
 
-OpenSSL の `libcrypto` でハッシュ計算を行うビルド:
+Build with OpenSSL `libcrypto` for hashing:
 
 ```bash
 make clean
 make BAO_USE_OPENSSL=1
 ```
 
-（Linux では `libssl-dev` などが追加で必要な場合があります。）
+(On Linux you may need `libssl-dev`, etc.)
 
-## 最小の操作（任意のプロジェクトディレクトリ）
+## Minimal workflow (any project directory)
 
-空のディレクトリ、または `bao.yaml` があるディレクトリで作業します（例ではリポジトリルートから `bin/bao` を呼び出しています）。
+Work in an empty directory or one that already has `bao.yaml` (the examples below call `bin/bao` from the repo root).
 
 ```bash
 mkdir -p ~/my-bao-project && cd ~/my-bao-project
 /path/to/bao/bin/bao init
-# bao.yaml と prompts/ を編集・配置したあと
+# After editing bao.yaml and prompts/
 /path/to/bao/bin/bao add -A
-# または: bao add bao.yaml prompts/ test_cases.jsonl
+# or: bao add bao.yaml prompts/ test_cases.jsonl
 /path/to/bao/bin/bao commit -m "first snapshot"
 /path/to/bao/bin/bao log
 ```
 
-初めての場合は、上記より **`examples/sample/` の手順**のほうが簡単です。
+If you are new to Bao, **`examples/sample/`** is easier than the snippet above.
 
-`commit` 前に `bao add` でステージ（`index`）へ登録する必要があります。`bao add -A` は `bao.yaml` ・設定上のプロンプトファイル・データセット・`prompts/` 以下をまとめて追加します。
+You must **`bao add`** to stage the index before **`bao commit`**. **`bao add -A`** stages `bao.yaml`, configured prompt files, the dataset, and everything under `prompts/`.
 
-`bao.yaml` には `model` と `prompt_file`（または `prompts_dir`）が必要です。`run` / `eval` / `push` / `pull` は今後の拡張です。
+`bao.yaml` needs `model` and `prompt_file` (or `prompts_dir`). `run` / `eval` / `push` / `pull` are planned extensions.
 
-## コマンド（抜粋）
+## Commands (excerpt)
 
 - **`add`**: `-A/--all`, `-u/--update`, `-n/--dry-run`, `-v/--verbose`
 - **`commit`**: `-m`, `-F/--file`, `-a/--all`, `-q/--quiet`, `--amend`
@@ -141,18 +140,18 @@ mkdir -p ~/my-bao-project && cd ~/my-bao-project
 - **`status`**: `-s/--short`, `-b/--branch`, `--porcelain`
 - **`checkout`**: `-b`, `-B`, `--detach`
 - **`switch`**: `-c`, `-C`, `--detach`
-- **`rev-parse`**: `HEAD~n` は **親リンク（parent）** を辿ります（DB の時系列ではありません）
+- **`rev-parse`**: `HEAD~n` follows **parent links** (not DB timeline order)
 
-## ドキュメント
+## Documentation
 
-| ファイル | 内容 |
-|----------|------|
-| `docs/QUICKSTART.md` | clone からサンプルで試す最短手順 |
-| `examples/README.md` | サンプルディレクトリの説明 |
-| `examples/sample/README.md` | `examples/sample/` だけで試す手順 |
-| `docs/concept_and_naming.md` | 開発コンセプト・命名の由来（包子メタファー、CLIの手触り） |
-| `docs/BRANCH_PROTECTION.md` | `main` 向け PR で CI 必須にする（GitHub ブランチ保護の手順） |
-| `docs/system_design.md` | システム設計（概要） |
-| `docs/architecture.md` | 詳細システム設計（DB・構造体・コマンドフロー） |
-| `docs/RELEASING.md` | リリース作業メモ |
-| `man/bao.1` | `man bao` 用マニュアル（プロトタイプ） |
+| File | Description |
+|------|-------------|
+| `docs/QUICKSTART.md` | Shortest path from clone to sample |
+| `examples/README.md` | Sample directory overview |
+| `examples/sample/README.md` | Try only `examples/sample/` |
+| `docs/concept_and_naming.md` | Concept and naming (steamed-bun metaphor, CLI feel) |
+| `docs/BRANCH_PROTECTION.md` | Require CI on `main` (GitHub branch protection) |
+| `docs/system_design.md` | System design (overview) |
+| `docs/architecture.md` | Detailed design (DB, structs, command flow) |
+| `docs/RELEASING.md` | Release checklist |
+| `man/bao.1` | `man bao` (prototype) |

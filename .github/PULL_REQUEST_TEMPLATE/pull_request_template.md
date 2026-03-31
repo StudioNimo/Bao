@@ -1,12 +1,12 @@
-## 変更内容
+## What changed
 
 - 
 
-## 動作確認
+## Verification
 
 - [ ] `make test`
-- [ ] 影響範囲の確認（破壊的変更の有無）
+- [ ] Reviewed impact (breaking changes?)
 
-## 補足
+## Notes
 
-（必要なら）
+(optional)

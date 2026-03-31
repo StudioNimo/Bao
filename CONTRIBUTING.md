@@ -1,41 +1,41 @@
 # Contributing to Bao
 
-ありがとうございます。Bao はまだプロトタイプ段階ですが、バグ報告・改善提案・PR を歓迎します。
+Thanks for your interest. Bao is still a prototype, but bug reports, suggestions, and pull requests are welcome.
 
-プロジェクトの背景と名前の由来は [`docs/concept_and_naming.md`](docs/concept_and_naming.md) にあります。
+Background and naming are described in [`docs/concept_and_naming.md`](docs/concept_and_naming.md).
 
-**リポジトリ構成:** ツール本体は `src/` と `Makefile` です。ユーザー向けの最小サンプルは **`examples/sample/`** にあり、`cli_smoke.sh` 等のテストはここをコピー元にしています。ルート直下に `bao.yaml` はありません。
+**Layout:** The tool lives under `src/` and `Makefile`. The minimal user sample is **`examples/sample/`**; tests such as `cli_smoke.sh` copy from there. There is no `bao.yaml` at the repository root.
 
-## 開発環境
+## Development setup
 
-- macOS / Linux を想定
-- 依存: `sqlite3`（開発用ヘッダ含む）, C コンパイラ（`cc`）
-- 任意: OpenSSL（`make BAO_USE_OPENSSL=1`）
+- macOS / Linux expected
+- Dependencies: `sqlite3` (dev headers), C compiler (`cc`)
+- Optional: OpenSSL (`make BAO_USE_OPENSSL=1`)
 
-## ビルド / テスト
+## Build / test
 
 ```bash
 make
 make test
 ```
 
-## 変更の方針
+## Change guidelines
 
-- **動作互換を重視**: 既存のコマンド出力・終了コードを壊す変更は、テスト更新と合わせて理由を明記してください。
-- **安全性**: パス操作（`..`/絶対パス/`.bao` 直下）などは常に安全側に倒します。
-- **依存追加は慎重に**: 追加が必要なら、理由と代替案も記載してください。
+- **Compatibility:** If you change command output or exit codes, update tests and explain why.
+- **Safety:** Path handling (`..`, absolute paths, `.bao/`) should stay on the safe side.
+- **Dependencies:** Propose new deps sparingly; include rationale and alternatives.
 
-## Issue / PR
+## Issues / PRs
 
-- **バグ**: 再現手順（最小）、期待結果、実際の結果、OS/環境を添えてください。
-- **機能提案**: 目的、ユーザー価値、想定 UX、互換性影響を記載してください。
-- **PR**: テスト追加/更新（または不要である根拠）を含めてください。`main` 向け PR では GitHub Actions（`.github/workflows/ci.yml`）が走ります。マージ前に CI を必須にする設定は [`docs/BRANCH_PROTECTION.md`](docs/BRANCH_PROTECTION.md) を参照してください。
+- **Bugs:** Minimal repro steps, expected vs actual, OS/environment.
+- **Features:** Goal, user value, intended UX, compatibility impact.
+- **PRs:** Include test updates (or why not). PRs to `main` run GitHub Actions (`.github/workflows/ci.yml`). To require CI before merge, see [`docs/BRANCH_PROTECTION.md`](docs/BRANCH_PROTECTION.md).
 
-## コードスタイル（目安）
+## Code style (guidelines)
 
-- C11、警告ゼロを目標（`-Wall -Wextra -Wpedantic`）
-- 早期 return + 明確なエラーメッセージ
+- C11; aim for zero warnings (`-Wall -Wextra -Wpedantic`)
+- Early returns and clear error messages
 
-## ライセンス
+## License
 
-コントリビューションは `LICENSE`（MIT）に基づき提供されたものとみなします。
+Contributions are accepted under the terms of `LICENSE` (MIT).

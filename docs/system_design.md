@@ -1,108 +1,109 @@
-# 🥟 Bao (Prompt Version Control System) システム設計書
+# 🥟 Bao (Prompt Version Control System) — system design
 
-開発の動機・命名の由来・設計思想のストーリーは、オープンソース向けにまとめた [`concept_and_naming.md`](concept_and_naming.md) を参照してください。
+For motivation, naming, and design philosophy, see [`concept_and_naming.md`](concept_and_naming.md).
 
-## 1. 開発に至った背景 (Background)
-LLM（大規模言語モデル）を活用したアプリケーション開発において、プロンプトの微調整（パラメータ変更や文言の追加）は非決定論的な出力をもたらし、しばしば「あるケースの精度は向上したが、別のケースで予期せぬ劣化（デグレ）が発生する」という問題を引き起こす。  
-例えば、音声入力から構造化データを抽出してOSと対話するエージェント型アプリケーションなどの開発において、プロンプトの変更履歴と、それに対する「実行結果」「人間による評価スコア」が紐づいていないと、精度の客観的な比較や再現性の担保が困難になる。  
-本プロジェクトは、Gitの「コンテンツアドレス・ストレージ」の思想をLLMOpsに持ち込み、プロンプト・パラメータ・テストデータ・実行結果・評価を一つの不変の「スナップショット」として包み込む（Bao）ことで、高速かつ確実なプロンプト改善サイクルを実現するCLIツールを開発する。
+## 1. Background
 
-## 2. システム要件 (System Requirements)
-- **超高速な起動と実行:** スクリプト言語のオーバーヘッドを排除するため、C言語（C99/C11）でネイティブ実装する。
-- **ローカルファースト:** 重厚なサーバー環境を必要とせず、ディレクトリ内の隠しフォルダ（`.bao/`）とローカルSQLiteデータベースのみで完結する。
-- **Git互換の操作感:** `init`, `commit`, `checkout`, `log` など、開発者が既に使い慣れているGitライクなコマンド体系とブランチモデルを提供する。
-- **透過的なデータ管理:** 人間が編集する宣言的設定ファイル（YAML）と、システムが保存するJSON/JSONLファイルを明確に分離する。
-- **チームコラボレーション:** HTTP(S)経由でのリモートサーバーへの `push` / `pull` 同期機能を備える。
+In LLM application development, small prompt changes (parameters or wording) produce non-deterministic outputs and often “this case got better while another regressed.” When building agents (e.g. voice input to structured data and OS control), if prompt history is not tied to run outputs and human scores, objective comparison and reproducibility suffer.
 
-## 3. システム構成・構想 (Architecture)
+This project applies Git-style **content-addressed storage** to LLMOps: prompts, parameters, test data, runs, and evaluations are wrapped in one immutable **snapshot** (`Bao`) so teams can iterate quickly and safely.
 
-### 3.1. ディレクトリ構造
-プロジェクトルート配下に `.bao/` ディレクトリを作成し、オブジェクトとインデックスを管理する。
+## 2. System requirements
+
+- **Fast startup:** Native C (C99/C11) to avoid script interpreter overhead.
+- **Local-first:** Only a hidden `.bao/` directory and a local SQLite database—no heavy server.
+- **Git-like UX:** Familiar commands (`init`, `commit`, `checkout`, `log`) and a branch-oriented model.
+- **Clear separation:** Human-edited declarative config (`bao.yaml`) vs system-generated JSON/JSONL.
+- **Collaboration:** `push` / `pull` over HTTP(S) to sync with a remote.
+
+## 3. Architecture overview
+
+### 3.1. Directory layout
+
+Under the project root, `.bao/` stores objects and index data.
 
 ```text
 my_project/
-├── bao.yaml              # ユーザーが編集する宣言的設定ファイル
-├── prompts/              # プロンプト本文のテキストファイル群
-├── test_cases.jsonl      # 評価用のテストデータセット
-└── .bao/                 # Bao管理領域
+├── bao.yaml              # User-edited declarative config
+├── prompts/              # Prompt text files
+├── test_cases.jsonl      # Evaluation dataset
+└── .bao/                 # Bao metadata
     ├── objects/
-    │   ├── commits/      # スナップショット (例: 8f3a2b1.json)
-    │   └── results/      # 実行ログのバックアップ (.jsonl)
+    │   ├── commits/      # Snapshots (e.g. 8f3a2b1.json)
+    │   └── results/      # Run log backups (.jsonl)
     ├── refs/
-    │   └── heads/        # ブランチのポインタ (例: main)
-    ├── HEAD              # 現在のチェックアウト状態
-    └── index.db          # 高速検索・集計用のSQLiteデータベース
+    │   └── heads/        # Branch pointers (e.g. main)
+    ├── HEAD              # Current checkout
+    └── index.db          # SQLite for fast queries
 ```
 
-本リポジトリでは CLI ソースと作業ツリーを分離するため、上記に相当する `bao.yaml` / `prompts/` / `test_cases.jsonl` の例は **`examples/sample/`** に置いています（clone 後の試用にそのまま使えます）。
+This repository keeps CLI sources separate from a working tree; equivalent `bao.yaml` / `prompts/` / `test_cases.jsonl` live under **`examples/sample/`** for cloning and demos.
 
-### 3.2. データベーススキーマ (`index.db`)
-評価やログの高速集計のため、SQLiteを利用する。
-- `commits` テーブル: ハッシュ、モデル、パラメータ、プロンプト本文、同期フラグ。
-- `executions` テーブル: 実行ID、コミットハッシュ、入力テキスト、出力テキスト、レイテンシ。
-- `evaluations` テーブル: 実行ID、スコア（GOOD/NEUTRAL/BAD）。
+### 3.2. Database schema (`index.db`)
 
-## 4. 想定している依存パッケージ (Dependencies)
-C言語ネイティブで構築するため、以下の軽量かつ枯れたCライブラリを動的リンク（または静的リンク）して使用する。
+SQLite backs fast aggregation.
 
-1. **`libcrypto` (OpenSSL):** SHA-256ハッシュの計算（コミットIDの生成）。
-2. **`libsqlite3`:** 実行結果と評価スコアの保存・集計・マージ。
-3. **`libcurl`:** OpenAI等LLM APIへの推論リクエスト、およびリモートサーバーへの `push/pull` 通信。
-4. **`libyaml`:** `bao.yaml` 設定ファイルのパース。
-5. **`cJSON` (ソース同梱推奨):** 超軽量なJSONパーサー/ジェネレーター。APIリクエスト/レスポンス処理、テンプレートエンジンの変数展開用。
+- `commits`: hash, model, parameters, prompt text, sync flag.
+- `executions`: run id, commit hash, input/output text, latency.
+- `evaluations`: run id, score (GOOD/BAD/NEUTRAL).
 
-## 5. ユーザーケース (Use Cases)
-1. **プロンプトのA/Bテストと回帰テスト:**  
-   現在の本番用プロンプト（`main`）からブランチを切り、新しいプロンプト手法（Few-shotなど）を試す。50件のテストデータを `bao run` で一括処理し、`bao eval` で評価後、`bao diff --eval` で旧バージョンと比較。「どの発話パターンでJSONの抽出精度が落ちたか」を特定し、採用可否を判断する。
-2. **高速なアノテーション（手動評価）:**  
-   キーボードから手を離さず、ターミナル上で出力結果を見ながら `1 (BAD)`, `2 (NEUTRAL)`, `3 (GOOD)` を連打し、数十件の評価を数分で完了させる。
-3. **チームでのナレッジ共有:**  
-   高スコアを叩き出したプロンプトの設定と評価結果を `bao push` で中央サーバーへ送信し、チームメンバーが `bao pull` で手元に同期。自身の環境で即座にそのプロンプトを `checkout` して利用する。
+## 4. Dependencies (target)
 
-## 6. 設計上で考慮されていること (Design Considerations)
-- **CLIとしてのUX最適化:** `termios.h` を用いたRAWモード入力により、評価時の `Enter` キー押下を不要にし、評価者の認知負荷を極限まで下げる。
-- **データセットの一貫性担保:** テストデータセット（JSONL）自体のハッシュ値もコミット・実行ログに紐付けることで、データセット変更による不当なスコア比較（見せかけの精度向上）を防ぐ。
-- **コンフリクトフリーなデータ結合:** SQLiteの `INSERT OR IGNORE` を用いることで、リモートとの同期（`pull`）時に複雑なマージ競合を発生させず、安全に評価データを統合する。
+Native C with small, mature libraries:
 
-## 7. コマンドリファレンス (Command Overview)
-- `bao init`: リポジトリ（`.bao/`）の初期化。
-- `bao commit -m "<msg>"`: 現在の `bao.yaml` とプロンプトのハッシュを計算し、スナップショットとして保存。
-- `bao run [-d <dataset.jsonl>]`: 現在のコミット設定でLLM APIを叩き、結果をDBに保存。
-- `bao eval`: ターミナル対話型UIで未評価の実行結果に3択スコアを付与。
-- `bao log`: コミット履歴と、各コミットのGOOD/BAD率のサマリーを表示。
-- `bao diff --eval <hashA> <hashB>`: 2つのバージョン間で、評価が改善・改悪したテストケースの差分を表示。
-- `bao checkout <branch|hash>`: 指定したバージョンの状態に `bao.yaml` 等を復元。
-- `bao push` / `bao pull`: リモートサーバーとの評価データ・コミット同期。
+1. **`libcrypto` (OpenSSL):** SHA-256 for commit IDs (optional; built-in hash available).
+2. **`libsqlite3`:** Store and aggregate runs and scores.
+3. **`libcurl`:** LLM HTTP calls and `push`/`pull` transport.
+4. **`libyaml`:** Parse `bao.yaml` (design doc; current code uses a flat parser—see `architecture.md`).
+5. **`cJSON` (vendored):** JSON for API payloads and template rendering.
 
-## 8. 現時点で想定・設計できているソースコード構成
+## 5. Use cases
+
+1. **A/B and regression:** Branch from `main`, try a new prompt, `bao run` 50 cases, `bao eval`, then `bao diff --eval` vs the old commit to see which utterances regressed.
+2. **Fast manual annotation:** In the terminal, `1`/`2`/`3` for BAD/NEUTRAL/GOOD without extra Enter presses.
+3. **Team sync:** `bao push` high-scoring configs and evaluations; teammates `bao pull` and `checkout` locally.
+
+## 6. Design considerations
+
+- **CLI UX:** RAW `termios` mode for eval reduces cognitive load.
+- **Dataset integrity:** Hash the JSONL dataset and bind it to commits/runs to avoid bogus score comparisons.
+- **Conflict-free merge:** `INSERT OR IGNORE` style merges on `pull` to avoid merge conflicts in evaluation data.
+
+## 7. Command overview
+
+- `bao init`: create `.bao/`.
+- `bao commit -m "..."`: hash `bao.yaml` + prompts and save a snapshot.
+- `bao run [-d dataset.jsonl]`: call the LLM API with the current commit and store results.
+- `bao eval`: interactive 3-way scoring for unevaluated runs.
+- `bao log`: history plus GOOD/BAD summaries per commit.
+- `bao diff --eval <A> <B>`: cases where scores improved or worsened.
+- `bao checkout`: restore `bao.yaml` etc. to a branch or commit.
+- `bao push` / `bao pull`: sync with a remote server.
+
+## 8. Intended source layout (design target)
+
 ```text
 src/
-├── bao.c           # エントリポイント (argparse互換のコマンドルーティング)
-├── cmd_init.c      # .bao/ ディレクトリの生成
-├── cmd_commit.c    # ハッシュ生成とスナップショット保存
-├── cmd_run.c       # libcurlを用いたAPI通信とレスポンス保存
-├── cmd_eval.c      # termiosを用いたRAWモード対話型UI
-├── cmd_log.c       # SQLite集計と差分(diff)表示
-├── cmd_checkout.c  # 作業ディレクトリへのファイル書き戻し
-├── cmd_remote.c    # push/pullのためのHTTP通信とJSONペイロード構築
-├── hash.c          # OpenSSL EVP APIによるSHA-256計算
-├── db.c            # SQLite3のラッパー関数群
-├── config.c        # libyamlによる bao.yaml パース処理
-└── template.c      # {{variable}} の展開を行う軽量テンプレートエンジン
+├── bao.c           # Entrypoint + command routing
+├── cmd_init.c      # Create .bao/
+├── cmd_commit.c    # Hashing + snapshot storage
+├── cmd_run.c       # libcurl + response handling
+├── cmd_eval.c      # RAW-mode eval UI
+├── cmd_log.c       # SQLite + diff display
+├── cmd_checkout.c  # Restore working files
+├── cmd_remote.c    # push/pull HTTP + JSON
+├── hash.c          # SHA-256 (OpenSSL or built-in)
+├── db.c            # SQLite helpers
+├── config.c        # bao.yaml parsing
+└── template.c      # {{variable}} rendering
 ```
-*(※ `Makefile` は最適化フラグ `-O2` と各種ライブラリ `-lcrypto -lcurl -lsqlite3 -lyaml` のリンク設定を含む)*
 
-## 9. 開発上まとめるべき追加要件 (Additional Dev Requirements)
-オープンソースとして公開し、持続可能な開発を進めるために以下の要件を定義・整備する。
+*(The `Makefile` uses `-O2` and links `-lcrypto -lcurl -lsqlite3` as needed; the live tree may differ—see `architecture.md`.)*
 
-1. **テストフレームワークの導入 (Testing):**  
-   C言語用の軽量テスティングフレームワーク（`Unity` や `Criterion`）を導入し、特に「ハッシュ計算の再現性」「テンプレートエンジンの変数展開」「JSONパースの安全性」に対する単体テスト（Unit Test）を自動化する。
-2. **クロスコンパイルと配布戦略 (Distribution):**  
-   Mac (Apple Silicon/Intel), Linux, Windows (WSL/MinGW) 向けに、可能な限り依存ライブラリを静的リンク（Static Link）した単一のバイナリファイルをビルドする。配布手段として `Homebrew` (Tap) や GitHub Releases を整備する。
-3. **CI/CDパイプライン (GitHub Actions):**  
-   コードがPushされるたびに、複数OSでのコンパイルテストと単体テストを自動実行するワークフローを構築する。
-4. **LLMプロバイダの抽象化層:**  
-   初期実装はOpenAI APIを想定しているが、将来的にAnthropic (Claude) やGoogle (Gemini)、ローカルLLM (Ollama) などに対応できるよう、`cmd_run.c` 内のAPI呼び出し部分をInterface（関数ポインタ）で抽象化する設計を取り入れる。
-5. **Contribution Guidelines (貢献者向けガイド):**  
-   コーディング規約（フォーマットは `clang-format` を適用）、Issueの立て方、Pull Requestのルールを `CONTRIBUTING.md` として明文化する。
+## 9. Additional roadmap (OSS sustainability)
 
+1. **Unit tests:** Lightweight C test frameworks for hashing, templates, and JSON safety.
+2. **Distribution:** Static binaries where possible; Homebrew tap / GitHub Releases.
+3. **CI:** Already partially met (GitHub Actions on multiple OSes).
+4. **Provider abstraction:** `cmd_run` behind a small interface for OpenAI, Anthropic, Gemini, Ollama, etc.
+5. **Contribution guide:** `CONTRIBUTING.md`, coding style (`clang-format`), issue/PR norms.

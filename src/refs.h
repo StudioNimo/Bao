@@ -1,6 +1,6 @@
 #pragma once
 
-// 表示用の短いプレフィックス（先頭7 hex）。HEAD が無ければ NULL。Caller frees。
+// Short display prefix (first 7 hex). NULL if no HEAD. Caller frees.
 char *bao_resolve_head_short(void);
 
 // Branch name if HEAD is refs/heads/*, else NULL (detached). Caller frees.

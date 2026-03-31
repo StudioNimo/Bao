@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# プロンプトの版管理がしばらく進んだプロジェクトを、単一ディレクトリ上で再現する。
-# 使い方:
+# Recreates a project where prompt versioning has progressed for a while, in one directory.
+# Usage:
 #   ./scripts/bao_prompt_versioning_demo_setup.sh
-#   FORCE=1 ./scripts/bao_prompt_versioning_demo_setup.sh   # 既存デモを上書き
-# 環境変数:
-#   BAO        bao バイナリ（既定: リポジトリの bin/bao）
-#   DEMO_ROOT  再現先（既定: <repo>/demo/prompt_versioning_workspace）
+#   FORCE=1 ./scripts/bao_prompt_versioning_demo_setup.sh   # overwrite existing demo
+# Environment:
+#   BAO        path to bao binary (default: repo bin/bao)
+#   DEMO_ROOT  workspace root (default: <repo>/demo/prompt_versioning_workspace)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -32,7 +32,7 @@ cd "$DEMO_ROOT"
 
 run() { echo "+ $*"; "$@"; }
 
-# --- ファイル雛形（まだ init 前）---
+# --- File skeleton (before init) ---
 mkdir -p prompts/p0 prompts/p1 providers/notes
 cat > test_cases.jsonl <<'JSONL'
 {"id":"tc-001","prompt":"hello"}
@@ -79,12 +79,12 @@ YAML
 
 run "$BAO" init
 
-# --- Commit 1: 初期スナップショット（p0 有効）---
+# --- Commit 1: initial snapshot (p0 active) ---
 write_bao_openai_p0
 run "$BAO" add bao.yaml test_cases.jsonl prompts/p0/system.txt prompts/p1/system.txt providers/notes/vendor.txt
 run env BAO_NO_EDITOR=1 "$BAO" commit --no-edit -m "bootstrap: dataset + prompts/p0 v1 + vendor notes"
 
-# --- Commit 2: 同一プロファイルでプロンプトだけ改訂 ---
+# --- Commit 2: same profile, prompt-only revision ---
 cat > prompts/p0/system.txt <<'TXT'
 You are a helpful assistant (profile p0, revision 2).
 Follow instructions precisely. Prefer structured output when asked.
@@ -94,16 +94,16 @@ run env BAO_NO_EDITOR=1 "$BAO" commit --no-edit -m "prompt: refine p0 instructio
 
 run "$BAO" tag v0.1-baseline
 
-# --- Commit 3: 別プロバイダー + 別 profile に切替（設定とプロンプトを版管理）---
+# --- Commit 3: switch provider + profile (version config and prompts) ---
 write_bao_anthropic_p1
 cat > prompts/p1/system.txt <<'TXT'
 You are a helpful assistant (profile p1, revision 2).
-Be concise. Use Japanese when the user writes in Japanese.
+Be concise. Match the user's language in your replies.
 TXT
 run "$BAO" add bao.yaml prompts/p0/system.txt prompts/p1/system.txt test_cases.jsonl providers/notes/vendor.txt
 run env BAO_NO_EDITOR=1 "$BAO" commit --no-edit -m "experiment: switch to anthropic + p1 prompt"
 
-# --- Commit 4: 評価結果のスナップショットを追加（成果物もコミットに含める）---
+# --- Commit 4: add evaluation snapshot (artifacts in commit) ---
 mkdir -p results
 cat > results/run01.jsonl <<'JSONL'
 {"case_id":"tc-001","model_profile":"p1","score":0.92,"note":"demo snapshot"}

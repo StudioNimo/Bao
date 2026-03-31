@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# 複数プロバイダーを同一リポで管理するユースケース:
-# - prompts/<profile>/… と providers/… を同居させ、provider/model/profile を切り替えてコミットする。
+# Multiple providers in one repo:
+# - prompts/<profile>/… alongside providers/…; switch provider/model/profile and commit.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BAO="${BAO:-$ROOT/bin/bao}"
@@ -42,7 +42,7 @@ if ! "$BAO" show --stat "$H1" 2>/dev/null | grep -q '^provider openai'; then
   exit 1
 fi
 
-# 別プロバイダーに切り替え（同一リポ・別ディレクトリのプロンプトを参照）
+# Switch provider (same repo, prompts from another profile dir)
 cat > bao.yaml <<'YAML'
 provider: anthropic
 profile: p1
@@ -58,7 +58,7 @@ BAO_NO_EDITOR=1 "$BAO" commit --no-edit -m "snapshot: anthropic active + multi-t
 
 H2=$("$BAO" rev-parse HEAD)
 if [ "$H1" = "$H2" ]; then
-  echo "FAIL: provider/model/prompt 切替後も同一コミットハッシュになった"
+  echo "FAIL: commit hash unchanged after provider/model/prompt switch"
   exit 1
 fi
 
@@ -74,7 +74,7 @@ if [ "$P1" != "$H1" ]; then
   exit 1
 fi
 
-# log に provider が出る（DB マイグレーション後）
+# log oneline should mention provider (after DB migration)
 if ! "$BAO" log -n 2 --oneline 2>/dev/null | grep -q 'provider='; then
   echo "FAIL: log oneline should mention provider="
   "$BAO" log -n 2 --oneline || true

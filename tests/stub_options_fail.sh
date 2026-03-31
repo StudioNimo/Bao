@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# 未実装コマンド（スタブ）の主要オプションを実行し、終了コードを検証する。
-# - 多くは非0終了を期待する。
-# - clone/merge/rebase/cherry-pick の一部オプションは実装上 0 終了（メッセージのみ）のため expect_ok。
+# Run stub commands with options and assert exit codes.
+# - Most expect non-zero exit.
+# - Some clone/merge/rebase/cherry-pick options return 0 (noop in cmd_misc.c); those use expect_ok.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
@@ -42,7 +42,7 @@ dataset: test_cases.jsonl
 YAML
     "$BAO" init
 
-    # 実装上、未実装でも 0 を返す「noop」系（cmd_misc.c）
+    # No-op stubs that still exit 0 (cmd_misc.c)
     expect_ok "$BAO" clone --abort
     expect_ok "$BAO" clone --continue
     expect_ok "$BAO" merge --abort
@@ -53,7 +53,7 @@ YAML
     expect_ok "$BAO" cherry-pick --abort
     expect_ok "$BAO" cherry-pick --continue
 
-    # 非0終了を期待
+    # Expect non-zero exit
     expect_fail "$BAO" run
     expect_fail "$BAO" run --dry-run
     expect_fail "$BAO" run -n 1

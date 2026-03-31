@@ -1,77 +1,77 @@
-# 🥟 Bao (Prompt Version Control System) 詳細システム設計書
+# 🥟 Bao (Prompt Version Control System) — detailed design
 
-## 1. システム・アーキテクチャ概要
+## 1. Architecture overview
 
-Baoは、C言語（C99/C11準拠）で実装されたローカルファーストのLLMOps用CLIツールである。外部ライブラリを最小限に抑え、静的/動的リンクにより単一の高速なバイナリとして動作する。Gitのコンテンツアドレス・ストレージの概念を応用し、プロンプト設定・実行結果・評価スコアの完全なスナップショットを管理する。
-
----
-
-## 2. ディレクトリ・ファイルシステム仕様
-
-Baoはカレントディレクトリ直下の `.bao/` 隠しディレクトリ内に全データを格納する。
-
-### 2.1. プロジェクトルート層（ユーザー操作領域）
-
-- `bao.yaml`: プロンプトのメタデータ、モデル設定、パラメータを定義するYAMLファイル。
-- `*.txt / *.md`: 外部参照されるプロンプト本文。
-- `*.jsonl`: テストデータセット（入力変数群）。
-
-### 2.2. `.bao/` 内部構造（システム管理領域）
-
-- `index.db`: 実行結果、評価、メタデータを管理するSQLite3データベース。
-- `HEAD`: 現在のチェックアウト状態を示すテキストファイル（例: `ref: refs/heads/main` またはハッシュ値）。
-- `refs/heads/<branch_name>`: 各ブランチの最新コミットハッシュを格納するテキストファイル。
-- `objects/commits/<hash>.json`: コミット時の `bao.yaml` とプロンプト本文を完全にフリーズしたJSONファイル。
-- `objects/results/<hash>.jsonl`: 当該コミットで実行された推論結果の生ログ（バックアップ用）。
+Bao is a local-first LLMOps CLI in C (C99/C11). External dependencies are kept small; the binary can be linked statically or dynamically. It applies Git-style content-addressed ideas to prompt configuration, run outputs, and evaluation scores.
 
 ---
 
-## 3. データベース設計 (SQLite Schema)
+## 2. Directory and filesystem layout
 
-`.bao/index.db` に構築されるテーブル群。C言語からはプリペアドステートメントを用いて安全にアクセスする。
+Everything lives under a hidden `.bao/` directory next to the current working directory.
 
-### 3.1. `commits` テーブル
+### 2.1. Project root (user-visible)
 
-スナップショットのメタデータを管理。
+- `bao.yaml`: model, parameters, and prompt metadata.
+- `*.txt` / `*.md`: prompt bodies referenced from config.
+- `*.jsonl`: test dataset (input variables).
+
+### 2.2. Inside `.bao/` (managed)
+
+- `index.db`: SQLite for runs, evaluations, and metadata.
+- `HEAD`: current branch (symbolic ref) or detached hash.
+- `refs/heads/<branch>`: branch tip hashes.
+- `objects/commits/<hash>.json`: frozen `bao.yaml` + prompt text at commit time.
+- `objects/results/<hash>.jsonl`: optional raw run logs (backup).
+
+---
+
+## 3. Database design (SQLite)
+
+Tables in `.bao/index.db`; access via prepared statements from C.
+
+### 3.1. `commits`
+
+Snapshot metadata.
 
 ```sql
 CREATE TABLE IF NOT EXISTS commits (
-    hash TEXT PRIMARY KEY,           -- SHA-256ショートハッシュ(7桁)
-    model TEXT NOT NULL,             -- 例: gpt-4-turbo
-    temperature REAL,                -- 推論パラメータ
-    prompt_text TEXT NOT NULL,       -- 展開前のプロンプト本文
-    dataset_hash TEXT,               -- 実行時のデータセットのハッシュ（一貫性検証用）
+    hash TEXT PRIMARY KEY,           -- SHA-256 short hash (7 hex)
+    model TEXT NOT NULL,             -- e.g. gpt-4-turbo
+    temperature REAL,                -- sampling parameter
+    prompt_text TEXT NOT NULL,       -- prompt body before expansion
+    dataset_hash TEXT,               -- dataset hash for consistency checks
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    synced INTEGER DEFAULT 0         -- リモートpush済みフラグ (0:未, 1:済)
+    synced INTEGER DEFAULT 0         -- remote push flag (0 = not synced)
 );
 ```
 
-### 3.2. `executions` テーブル
+### 3.2. `executions`
 
-`bao run` によるLLMの推論結果を管理。
+LLM runs from `bao run`.
 
 ```sql
 CREATE TABLE IF NOT EXISTS executions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    commit_hash TEXT NOT NULL,       -- 紐づくコミット
-    dataset_id TEXT,                 -- テストデータの識別子 (例: "test_001")
-    input_text TEXT NOT NULL,        -- プロンプトに埋め込まれた変数(JSON文字列)
-    output_text TEXT NOT NULL,       -- LLMからのレスポンス本文
-    latency_ms INTEGER,              -- API応答時間
-    tokens_used INTEGER,             -- 消費トークン数
+    commit_hash TEXT NOT NULL,
+    dataset_id TEXT,                 -- test id (e.g. "test_001")
+    input_text TEXT NOT NULL,        -- variables embedded in prompt (JSON)
+    output_text TEXT NOT NULL,       -- model response
+    latency_ms INTEGER,
+    tokens_used INTEGER,
     FOREIGN KEY(commit_hash) REFERENCES commits(hash)
 );
 ```
 
-### 3.3. `evaluations` テーブル
+### 3.3. `evaluations`
 
-`bao eval` による人間の評価結果を管理。
+Human scores from `bao eval`.
 
 ```sql
 CREATE TABLE IF NOT EXISTS evaluations (
     execution_id INTEGER PRIMARY KEY,
     score TEXT CHECK(score IN ('GOOD', 'NEUTRAL', 'BAD')),
-    note TEXT,                       -- 自由記述のメモ（オプション）
+    note TEXT,
     evaluated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(execution_id) REFERENCES executions(id)
 );
@@ -79,12 +79,11 @@ CREATE TABLE IF NOT EXISTS evaluations (
 
 ---
 
-## 4. メモリデータ構造 (C Struct Definitions: `bao.h`)
+## 4. In-memory structures (`bao.h`)
 
-C言語内でデータを引き回すためのコア構造体。各モジュールはこれらのポインタを受け渡し、使用後は専用の `free_*` 関数でメモリを解放する責務を持つ。
+Core structs passed between modules; callers free with dedicated helpers.
 
 ```c
-// プロンプト設定を保持する構造体 (config.c でパース)
 typedef struct {
     char *model;
     double temperature;
@@ -93,13 +92,11 @@ typedef struct {
     char *prompt_text;
 } BaoConfig;
 
-// テストデータ1行分を保持する構造体 (template.c で展開)
 typedef struct {
     char *test_id;
-    char *raw_json; // input変数のJSON文字列表現
+    char *raw_json;
 } BaoTestCase;
 
-// LLMの実行結果を保持する構造体 (cmd_run.c で生成)
 typedef struct {
     char *output_text;
     int latency_ms;
@@ -110,75 +107,75 @@ typedef struct {
 
 ---
 
-## 5. モジュール分割と内部API仕様
+## 5. Modules and internal APIs
 
-### 5.1. `src/hash.c` (暗号化・ハッシュモジュール)
+### 5.1. `src/hash.c`
 
-- **依存:** `openssl/evp.h`（オプション; デフォルトは内蔵SHA-256）
-- **責務:** 文字列およびファイルからSHA-256ハッシュを計算する。
-- **関数:** `char* generate_sha256(const char* data, size_t len);`
+- **Optional:** `openssl/evp.h` when `BAO_USE_OPENSSL=1`; default is built-in SHA-256.
+- **Role:** SHA-256 over strings and files.
+- **Example:** `char* generate_sha256(const char* data, size_t len);`
 
-### 5.2. `src/config.c` (YAMLパーサーモジュール)
+### 5.2. `src/config.c`
 
-- **依存:** `yaml.h` (libyaml)
-- **責務:** `bao.yaml` を読み込み、`BaoConfig` 構造体を動的にメモリ確保して返す。
-- **関数:** `BaoConfig* load_config(const char* path);`
+- **Design note:** full `libyaml` parsing is a future option.
+- **Role:** load `bao.yaml` into `BaoConfig`.
+- **Example:** `BaoConfig* load_config(const char* path);`
 
-### 5.3. `src/template.c` (テンプレートエンジンモジュール)
+### 5.3. `src/template.c`
 
-- **依存:** `cJSON.h`
-- **責務:** プロンプト内の `{{key}}` を、JSONオブジェクトの値で置換し、新たな文字列を生成する。バッファオーバーランを防ぐため、動的に `realloc` を行う。
-- **関数:** `char* render_template(const char* tmpl, cJSON* variables);`
+- **Depends:** `cJSON.h`
+- **Role:** replace `{{key}}` in prompts with JSON values; dynamic `realloc` for safety.
+- **Example:** `char* render_template(const char* tmpl, cJSON* variables);`
 
-### 5.4. `src/db.c` (データ永続化モジュール)
+### 5.4. `src/db.c`
 
-- **依存:** `sqlite3.h`
-- **責務:** SQLiteとのコネクション確立、トランザクション処理、SQLクエリの実行をカプセル化する。
-- **関数:** `int db_insert_execution(sqlite3* db, const char* hash, const char* input, const char* output, int latency);`
+- **Depends:** `sqlite3.h`
+- **Role:** connections, transactions, queries.
+- **Example:** `int db_insert_execution(sqlite3* db, ...);`
 
 ---
 
-## 6. コマンド仕様とシーケンス (CLI Commands)
+## 6. Commands and sequences
 
 ### 6.1. `bao commit -m "<message>"`
 
-1. **Read:** `load_config("bao.yaml")` を呼び出し設定を読み込む。
-2. **Hash:** 設定内容（モデル、パラメータ、プロンプト）を連結し、SHA-256ハッシュを生成。
-3. **Save Object:** `.bao/objects/commits/<hash>.json` を生成し、設定の完全なJSONダンプを書き込む。
-4. **Save DB:** `commits` テーブルに INSERT。
-5. **Update Ref:** `.bao/HEAD` が指すブランチのポインタを新しいハッシュに更新。
+1. **Read:** `load_config("bao.yaml")`.
+2. **Hash:** concatenate model, parameters, prompts → SHA-256.
+3. **Save object:** write `.bao/objects/commits/<hash>.json`.
+4. **Save DB:** INSERT into `commits`.
+5. **Update ref:** move branch pointer at HEAD.
 
 ### 6.2. `bao run -d <dataset.jsonl>`
 
-1. **Resolve HEAD:** 現在のコミットハッシュと設定を取得。
-2. **Hash Dataset:** `-d` で指定されたファイルのハッシュを計算し、`commits.dataset_hash` を更新（一貫性担保）。
-3. **Stream Read:** `.jsonl` を1行ずつ読み込み、`cJSON_Parse` で解析。
-4. **Render:** `render_template` でプロンプトを構築。
-5. **API Call:** `libcurl` を用いてLLMプロバイダへHTTP POSTリクエストを送信。
-   - *Payload Example:* `"content": "明日のAM10時にブラウザを開いて"`
-6. **Parse & Save:** レスポンスから出力テキスト（構造化JSON等）を抽出し、`db_insert_execution` でSQLiteへ保存。
+1. **Resolve HEAD:** current commit + config.
+2. **Hash dataset:** `-d` file hash → `commits.dataset_hash`.
+3. **Stream:** read JSONL line by line, `cJSON_Parse`.
+4. **Render:** `render_template`.
+5. **API:** HTTP POST via `libcurl` to the LLM provider.
+   - *Payload example:* `"content": "Open the browser tomorrow at 10am"`
+6. **Save:** `db_insert_execution` into SQLite.
 
 ### 6.3. `bao eval`
 
-1. **Fetch:** `evaluations` テーブルに存在しない `executions` レコードを1件 SELECT。
-2. **Raw Mode:** `termios` でターミナルをカノニカルモードからRAWモードに変更。
-3. **Display:** 入力プロンプトと出力結果をANSIカラーコードでハイライト表示。
-4. **Input:** `1`, `2`, `3` のキー入力を `getchar()` で即時捕捉。
-5. **Update:** 捕捉したスコアを `evaluations` テーブルに INSERT し、次のレコードへ進む。
+1. **Fetch:** one `executions` row without an `evaluations` row.
+2. **RAW mode:** `termios` off canonical mode.
+3. **Display:** prompt + output with ANSI colors.
+4. **Input:** `1`/`2`/`3` via `getchar()`.
+5. **Update:** INSERT into `evaluations`, advance.
 
 ### 6.4. `bao diff --eval <hash_A> <hash_B>`
 
-1. **Validate:** 双方のコミットが同一の `dataset_hash` を持っているか検証（異なれば警告表示）。
-2. **Join Query:** `executions` と `evaluations` を自己結合し、同一 `dataset_id` でスコアが変化したレコードを抽出。
-3. **Report:** `GOOD -> BAD` になったもの（デグレ）を赤色で、`BAD -> GOOD` になったものを緑色でターミナルに出力。
+1. **Validate:** same `dataset_hash` (warn if not).
+2. **Query:** join `executions` + `evaluations` for score changes per `dataset_id`.
+3. **Report:** regressions in red, improvements in green.
 
 ---
 
-## 7. 外部連携仕様 (Remote Sync)
+## 7. Remote sync
 
-### 7.1. Push Payload (`bao push`)
+### 7.1. Push payload (`bao push`)
 
-未同期（`synced = 0`）のデータをリモートサーバーに送信する際のJSON構造。
+JSON for unsynced (`synced = 0`) data:
 
 ```json
 {
@@ -187,10 +184,10 @@ typedef struct {
     {
       "hash": "8f3a2b1",
       "model": "gpt-4-turbo",
-      "prompt_text": "あなたはエージェントです...",
+      "prompt_text": "You are an agent...",
       "executions": [
         {
-          "input_text": "{\"utterance\": \"設定を開く\"}",
+          "input_text": "{\"utterance\": \"open settings\"}",
           "output_text": "{\"intent\": \"open_settings\"}",
           "evaluation": "GOOD"
         }
@@ -202,19 +199,16 @@ typedef struct {
 
 ---
 
-## 8. ビルド・コンパイル仕様 (Makefile)
+## 8. Build and Makefile
 
-- **コンパイラ:** `gcc` または `clang`
-- **最適化:** `-O2` (リリースビルド用)
-- **警告レベル:** `-Wall -Wextra -Werror` (厳格な品質管理)
-- **リンクフラグ (LDFLAGS):**
-  - `-lcrypto` (Macの場合は `/opt/homebrew/opt/openssl/lib` などのパス指定が必要な場合あり)
-  - `-lcurl`
-  - `-lsqlite3`
-  - `-lyaml`
+- **Compiler:** `gcc` or `clang`
+- **Optimization:** `-O2` for release
+- **Warnings:** `-Wall -Wextra` (`-Werror` in `RELEASE=1` CI)
+- **Typical links:** `-lsqlite3` (and optionally `-lcrypto`, `-lcurl`)
+
+The snippet below is illustrative; see the real `Makefile` for flags.
 
 ```makefile
-# Makefile 抜粋
 CC = gcc
 CFLAGS = -std=c11 -O2 -Wall -Wextra -I./include
 LDFLAGS = -lcrypto -lcurl -lsqlite3 -lyaml
@@ -232,21 +226,21 @@ clean:
 
 ---
 
-## 9. エラーハンドリングと例外処理
+## 9. Error handling
 
-- **OOM (Out of Memory):** `malloc`, `realloc` の戻り値が `NULL` の場合は即座にエラーメッセージを出力し、`exit(1)` で安全に終了する。
-- **Network Failure:** `libcurl` の戻り値が `CURLE_OK` 以外（タイムアウト等）の場合、リトライは行わずエラーをログ出力し、当該テストケースの推論をスキップする。
-- **DB Lock:** SQLiteが `SQLITE_BUSY` を返した場合（他プロセスとの競合）、数ミリ秒のバックオフを挟んで最大3回リトライする。
-
----
-
-## 10. 実装メモ（本リポジトリ）
-
-- **`load_config`:** 設計書では `libyaml` を想定しているが、現行実装は **`bao.yaml` のフラットな `key: value` 行**のみを解釈する軽量パーサである。ネストや複雑なYAMLが必要になった段階で `libyaml` への差し替えが可能。
-- **`cJSON`:** `third_party/cJSON/` に同梱し、`template.c` およびコミットJSONの生成で利用する。
-- **SHA-256:** デフォルトは `hash.c` の内蔵実装。`make BAO_USE_OPENSSL=1` で OpenSSL の EVP を使うビルドも可能。
-- **スキーマ移行:** `index.db` の `commits` テーブルが旧形式の場合、`user_version` に基づきテーブルを再作成する（開発初期の破壊的移行）。
+- **OOM:** `malloc`/`realloc` failure → message and `exit(1)`.
+- **Network:** `libcurl` ≠ `CURLE_OK` → log and skip the case (no retry loop in design).
+- **DB lock:** `SQLITE_BUSY` → short backoff, retry up to N times.
 
 ---
 
-*(End of System Design Document)*
+## 10. Implementation notes (this repository)
+
+- **`load_config`:** The design doc mentions `libyaml`; the current code parses **flat `key: value` lines** in `bao.yaml`. Nested YAML can be introduced later with `libyaml`.
+- **`cJSON`:** Vendored under `third_party/cJSON/`; used in `template.c` and JSON commit objects.
+- **SHA-256:** Default implementation in `hash.c`; optional OpenSSL with `make BAO_USE_OPENSSL=1`.
+- **Schema migration:** Older `commits` layouts may be recreated based on `user_version` during early development.
+
+---
+
+*(End of document)*

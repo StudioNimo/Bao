@@ -87,7 +87,7 @@ int cmd_log(bao_ctx_t *ctx, int argc, char **argv) {
       disp = bao_display_short_from_full(hash);
       if (disp) hshow = disp;
     } else if (hash && strlen(hash) >= 7) {
-      /* レガシー DB 行など */
+      /* legacy DB rows, etc. */
       hshow = hash;
     }
     if (oneline) {
