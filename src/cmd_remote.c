@@ -27,12 +27,12 @@ static int is_safe_remote_field(const char *s) {
 }
 
 static int stub_push(void) {
-  bao_die("push is not implemented yet (planned: libcurl HTTP sync + INSERT OR IGNORE merge)");
+  bao_die("push is not implemented yet (issue #6; draft: docs/sync_protocol.md)");
   return 1;
 }
 
 static int stub_pull(void) {
-  bao_die("pull is not implemented yet (planned: libcurl HTTP sync + INSERT OR IGNORE merge)");
+  bao_die("pull is not implemented yet (issue #6; draft: docs/sync_protocol.md)");
   return 1;
 }
 

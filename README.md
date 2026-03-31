@@ -148,7 +148,7 @@ You must **`bao add`** to stage the index before **`bao commit`**. **`bao add -A
 - **`bao run`**: runs the JSONL dataset through the current HEAD config; **`--dry-run`** prints rendered prompts only. **`provider: openai`** uses **`OPENAI_API_KEY`** and `https://api.openai.com/v1/chat/completions`.
 - **`bao eval`**: TTY-only; scores unevaluated rows with **1=BAD / 2=NEUTRAL / 3=GOOD** after a `run`.
 - **`bao diff --eval A B`**: compares saved scores between two commits (same `dataset_hash` required).
-- **`push` / `pull`**: not implemented yet.
+- **`push` / `pull`**: not implemented yet ([issue #6](https://github.com/StudioNimo/Bao/issues/6); draft [`docs/sync_protocol.md`](docs/sync_protocol.md)).
 
 ## Commands (excerpt)
 
@@ -174,4 +174,6 @@ You must **`bao add`** to stage the index before **`bao commit`**. **`bao add -A
 | `docs/system_design.md` | System design (overview) |
 | `docs/architecture.md` | Detailed design (DB, structs, command flow) |
 | `docs/RELEASING.md` | Release checklist |
+| `docs/ISSUE_FOOTHOLD.md` | Map of open feature issues (#5–#7) to source files |
+| `docs/sync_protocol.md` | Draft notes for future `push`/`pull` sync |
 | `man/bao.1` | `man bao` (prototype) |

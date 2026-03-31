@@ -29,7 +29,7 @@ int cmd_eval(bao_ctx_t *ctx, int argc, char **argv) {
   if (argc > 0 && argv[0] && !strcmp(argv[0], "eval")) start = 1;
   for (int i = start; i < argc; i++) {
     if (!strcmp(argv[i], "--json")) {
-      bao_die("eval --json is not implemented yet");
+      bao_die("eval --json is not implemented yet (see GitHub issue #5 and docs/ISSUE_FOOTHOLD.md)");
     }
     if (argv[i][0] == '-') bao_die("unknown option: %s", argv[i]);
     bao_die("usage: bao eval");
