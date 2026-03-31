@@ -119,5 +119,26 @@ or network \fBpush\fR/\fBpull\fR. \fBrun\fR supports OpenAI chat completions onl
 .TP
 .I bao.yaml
 Project configuration (model, prompts, dataset settings).
+.SH ENVIRONMENT
+.TP
+.B BAO_EDITOR
+Preferred editor for \fBbao commit\fR messages (checked before \fBEDITOR\fR and \fBVISUAL\fR).
+.TP
+.B EDITOR
+Second choice for the commit message editor.
+.TP
+.B VISUAL
+Third choice for the commit message editor.
+.TP
+.B BAO_NO_EDITOR
+If set to \fB1\fR, \fBtrue\fR, \fBTRUE\fR, \fByes\fR, or \fBYES\fR, \fBbao commit\fR skips opening an editor when a message would otherwise be edited (e.g. in CI). Combine with \fB--no-edit\fR as needed.
+.TP
+.B OPENAI_API_KEY
+API key for \fBbao run\fR when \fBprovider: openai\fR is set in \fIbao.yaml\fR. Not used when \fB--dry-run\fR is passed.
+.TP
+.B ANTHROPIC_API_KEY
+Reserved for a future Anthropic provider in \fBbao run\fR; ignored today.
+.PP
+Example names and comments for local setup are in the repository file \fI.env.example\fR at the project root (not installed by \fBmake install-man\fR).
 .SH SEE ALSO
 \fBgit\fR(1)
